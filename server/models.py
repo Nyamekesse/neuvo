@@ -1,11 +1,14 @@
 from datetime import datetime
 from exts import db
 from uuid import uuid4
+import shortuuid
 import json
 from typing import Dict
 
-def gen_uuid():
-    return uuid4().hex
+def gen_user_id():
+    return uuid4()
+def gen_post_id():
+    return shortuuid.uuid()
 def gen_date():
     return datetime.utcnow()
 """
@@ -17,7 +20,7 @@ class Users:
     avatar: String(120) nullable=True default='default.jpg'
 """
 class User(db.Model):
-    id=db.Column(db.String(35), primary_key=True, unique=True, default=gen_uuid)
+    id=db.Column(db.String(36), primary_key=True, unique=True, default=gen_user_id)
     username=db.Column(db.String(20), unique=True, nullable=False)
     user_email=db.Column(db.String(120), unique=True, nullable=False)
     password=db.Column(db.String(60), nullable=False)
@@ -57,11 +60,11 @@ class Post:
     post_content: Text nullable=False
 """
 class Post(db.Model):
-    id=db.Column(db.String(35), primary_key=True, unique=True, default=gen_uuid)
+    id=db.Column(db.String(22), primary_key=True, unique=True, default=gen_post_id)
     title=db.Column(db.String(100), nullable=False)
     date_posted=db.Column(db.DateTime, nullable=False, default=gen_date)
     post_content=db.Column(db.Text, nullable=False)
-    user_id=db.Column(db.String(35), db.ForeignKey('user.id'), nullable=False)
+    user_id=db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
 
     def display(self) -> Dict:
         return {

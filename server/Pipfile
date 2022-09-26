@@ -10,6 +10,8 @@ flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
 python-decouple = "*"
 werkzeug = "==2.1.2"
+psycopg2 = "*"
+shortuuid = "*"
 
 [dev-packages]
 

@@ -12,6 +12,8 @@ python-decouple = "*"
 werkzeug = "==2.1.2"
 psycopg2 = "*"
 shortuuid = "*"
+flask-migrate = "*"
+flask-bcrypt = "*"
 
 [dev-packages]
 

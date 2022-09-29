@@ -1,6 +1,5 @@
 from flask_restx import Resource, Namespace, fields
-from flask import jsonify
-from flask import request
+from flask import request, jsonify, make_response
 from models.models import User
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, create_refresh_token
@@ -47,7 +46,9 @@ class SignUp(Resource):
                 avatar=data.get("avatar"),
             )
             new_user.insert()
-            return jsonify({"success": True, "message": "User successfully created"})
+            return make_response(
+                jsonify({"success": True, "message": "User successfully created"}), 201
+            )
 
 
 @auth_ns.route("/login")

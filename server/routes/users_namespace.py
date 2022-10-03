@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from models.models import User
 from flask import request
 
-user_ns = Namespace("user", description="Namespace for users")
+user_ns = Namespace("users", description="Namespace for users")
 
 users_model = user_ns.model(
     "Users",
@@ -16,7 +16,7 @@ users_model = user_ns.model(
 )
 
 
-@user_ns.route("/users")
+@user_ns.route("/")
 class UsersResource(Resource):
     @user_ns.marshal_list_with(users_model)
     def get(self):
@@ -25,7 +25,7 @@ class UsersResource(Resource):
         return users, 200
 
 
-@user_ns.route("/users/<id>")
+@user_ns.route("/user/<id>")
 class UsersResource(Resource):
     @user_ns.marshal_with(users_model)
     @jwt_required()

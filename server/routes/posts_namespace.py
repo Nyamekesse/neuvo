@@ -1,9 +1,9 @@
 from flask_restx import Resource, Namespace, fields
 from models.models import Post
 from flask_jwt_extended import jwt_required
-from flask import request
+from flask import request, make_response, jsonify
 
-post_ns = Namespace("post", description="Namespace for post")
+post_ns = Namespace("posts", description="Namespace for post")
 
 create_post_model_data = post_ns.model(
     "Create New Post",
@@ -25,7 +25,7 @@ posts_model = post_ns.model(
 )
 
 
-@post_ns.route("/posts")
+@post_ns.route("/", methods=["GET", "POST"])
 class PostsResource(Resource):
     @post_ns.marshal_list_with(posts_model)
     def get(self):
@@ -48,14 +48,13 @@ class PostsResource(Resource):
         return new_post, 201
 
 
-@post_ns.route("/posts/<id>")
+@post_ns.route("/post/<id>")
 class PostsResource(Resource):
     @post_ns.marshal_with(posts_model)
     def get(self, id):
         """get a specific post"""
-        print(type(id))
         single_post = Post.query.get_or_404(id)
-        return single_post
+        return single_post, 200
 
     @post_ns.marshal_with(posts_model)
     @jwt_required()

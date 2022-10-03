@@ -47,7 +47,14 @@ class SignUp(Resource):
             )
             new_user.insert()
             return make_response(
-                jsonify({"success": True, "message": "User successfully created"}), 201
+                jsonify(
+                    {
+                        "success": True,
+                        "message": "User successfully created",
+                        "user_id": new_user.id,
+                    }
+                ),
+                201,
             )
 
 
@@ -73,8 +80,11 @@ class Login(Resource):
                 }
             )
         else:
-            return jsonify(
-                {"success": False, "message": "Incorrect username or password"}
+            return make_response(
+                jsonify(
+                    {"success": False, "message": "Incorrect username or password"}
+                ),
+                200,
             )
 
 

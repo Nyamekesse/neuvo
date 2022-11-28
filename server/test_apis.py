@@ -1,5 +1,3 @@
-from email import header
-from os import access
 import unittest
 from main import create_app
 from config import TestConfig

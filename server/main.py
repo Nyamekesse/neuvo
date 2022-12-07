@@ -8,6 +8,7 @@ from flask_bcrypt import Bcrypt
 from routes.auth_namespace import auth_ns
 from routes.posts_namespace import post_ns
 from routes.users_namespace import user_ns
+from flask_cors import CORS
 
 
 def create_app(config):
@@ -21,6 +22,7 @@ def create_app(config):
     Migrate(app, db)
     Bcrypt(app)
     JWTManager(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     api = Api(app, doc="/docs")
     api.add_namespace(auth_ns)
     api.add_namespace(post_ns)

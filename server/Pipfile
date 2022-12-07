@@ -15,6 +15,7 @@ shortuuid = "*"
 flask-migrate = "*"
 flask-bcrypt = "*"
 black = "*"
+flask-cors = "*"
 
 [dev-packages]
 

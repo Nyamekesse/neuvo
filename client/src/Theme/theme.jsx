@@ -26,6 +26,7 @@ const theme = createTheme({
       desktop_1440: 1440, //
     },
   },
+
   components: {
     MuiIconButton: {
       styleOverrides: {
@@ -33,6 +34,29 @@ const theme = createTheme({
           backgroundColor: "transparent",
           borderRadius: "50%",
           color: "#000",
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#F5F5F5",
+          border: "1px solid #CED4DA",
+          borderRadius: "4px",
+          "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+            border: "none",
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        contained: {
+          backgroundColor: "#555555",
+          textTransform: "capitalize",
+          ":hover, :focus": {
+            backgroundColor: "#555555",
+          },
         },
       },
     },

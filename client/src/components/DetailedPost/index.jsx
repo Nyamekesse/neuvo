@@ -1,8 +1,20 @@
 import React from "react";
-import { CommentSection, Comments, Image, Post, Wrap } from "./style";
+import {
+  CommentCard,
+  CommentSection,
+  CommentText,
+  Comments,
+  Image,
+  Post,
+  Wrap,
+} from "./style";
 import { Box, Button, Typography } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import image from "../../assets/pexels-sl-wong-947384.jpg";
+import Avatar from "@mui/material/Avatar";
+import profile1 from "../../assets/profile-1.jpg";
+import profile2 from "../../assets/profile-2.jpg";
+import profile3 from "../../assets/profile-3.jpg";
 const PostDetail = () => {
   return (
     <Wrap>
@@ -96,17 +108,117 @@ const PostDetail = () => {
           variant="outlined"
           fullWidth
         />
-
-        <Button
-          disableElevation
-          variant={"contained"}
-          sx={{ marginTop: "20px" }}
-          component={"button"}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
         >
-          Comment
-        </Button>
+          <Button
+            disableElevation
+            variant={"contained"}
+            sx={{ marginTop: "20px" }}
+            component={"button"}
+          >
+            Comment
+          </Button>
+        </Box>
 
-        <Comments></Comments>
+        <Comments>
+          <CommentCard>
+            <Avatar
+              alt="Remy Sharp"
+              src={profile1}
+              sx={{ marginRight: "20px" }}
+            />
+            <Box>
+              <CommentText>
+                <Typography
+                  variant="caption"
+                  component={"p"}
+                  fontSize={14}
+                  fontWeight={400}
+                >
+                  Really nice post! I have applied those methods for daily.
+                </Typography>
+              </CommentText>
+              <Typography
+                variant="caption"
+                component={"p"}
+                color={"#888888"}
+                fontSize={12}
+                fontWeight={400}
+                mt={1}
+              >
+                2 hours ago
+              </Typography>
+            </Box>
+          </CommentCard>
+          <CommentCard>
+            <Avatar
+              alt="Remy Sharp"
+              src={profile2}
+              sx={{ marginRight: "20px" }}
+            />
+            <Box>
+              <CommentText>
+                <Typography
+                  variant="caption"
+                  component={"p"}
+                  fontSize={14}
+                  fontWeight={400}
+                >
+                  I love your writing style! It’s easy to understand and so
+                  engaging to read it until the end of the line! I have read so
+                  many productivity tips and this is so far the best I found! On
+                  this fast-changing world we need to be more productive. I
+                  wrote some life tips also, you can check on my page. Thank you
+                  for sharing mate!
+                </Typography>
+              </CommentText>
+              <Typography
+                variant="caption"
+                component={"p"}
+                color={"#888888"}
+                fontSize={12}
+                fontWeight={400}
+                mt={1}
+              >
+                yesterday
+              </Typography>
+            </Box>
+          </CommentCard>
+          <CommentCard>
+            <Avatar
+              alt="Remy Sharp"
+              src={profile3}
+              sx={{ marginRight: "20px" }}
+            />
+            <Box>
+              <CommentText>
+                <Typography
+                  variant="caption"
+                  component={"p"}
+                  fontSize={14}
+                  fontWeight={400}
+                >
+                  Thank you so much for these tips! I never thought these simple
+                  steps and trick on the first place!
+                </Typography>
+              </CommentText>
+              <Typography
+                variant="caption"
+                component={"p"}
+                color={"#888888"}
+                fontSize={12}
+                fontWeight={400}
+                mt={1}
+              >
+                a week ago
+              </Typography>
+            </Box>
+          </CommentCard>
+        </Comments>
       </CommentSection>
     </Wrap>
   );

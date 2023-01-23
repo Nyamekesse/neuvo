@@ -7,7 +7,7 @@ export const Container = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  backgroundColor: "gray",
+  backgroundColor: "#fafafa",
   marginBottom: "2%",
 }));
 

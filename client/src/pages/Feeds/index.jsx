@@ -1,5 +1,5 @@
 import React from "react";
-import { Postcard } from "../../components";
+import { Pagination, Postcard } from "../../components";
 
 const Feeds = () => {
   return (
@@ -8,6 +8,7 @@ const Feeds = () => {
       <Postcard />
       <Postcard />
       <Postcard />
+      <Pagination />
     </>
   );
 };

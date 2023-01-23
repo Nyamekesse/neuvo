@@ -8,6 +8,7 @@ export const Container = styled(Box)(({ theme }) => ({
   flexDirection: "row",
   alignItems: "center",
   backgroundColor: "gray",
+  marginBottom: "2%",
 }));
 
 export const Title = styled(Box)(({ theme }) => ({

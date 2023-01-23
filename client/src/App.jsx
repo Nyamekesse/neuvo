@@ -2,6 +2,16 @@ import { useLocation } from "react-router-dom";
 import "./App.css";
 import { Footer, Header } from "./components";
 import Views from "./views/Views";
+import Box from "@mui/material/Box";
+import { styled } from "@mui/material/styles";
+
+const AppContainer = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  margin: "0 auto",
+  padding: "0 15%",
+});
 
 function App() {
   let currentUrl = useLocation();
@@ -9,7 +19,9 @@ function App() {
   return (
     <>
       {!exceptPath.includes(currentUrl.pathname) && <Header />}
-      <Views />
+      <AppContainer>
+        <Views />
+      </AppContainer>
       {!exceptPath.includes(currentUrl.pathname) && <Footer />}
     </>
   );

@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import "./App.css";
+import { Footer, Header } from "./components";
+import Views from "./views/Views";
 
 function App() {
-  const [count, setCount] = useState(0);
-
+  let currentUrl = useLocation();
+  const exceptPath = ["/log-in", "/sign-up", "/page-not-found"];
   return (
-    <div className="App">
-      <h1>Hello World</h1>
-    </div>
+    <>
+      {!exceptPath.includes(currentUrl.pathname) && <Header />}
+      <Views />
+      {!exceptPath.includes(currentUrl.pathname) && <Footer />}
+    </>
   );
 }
 

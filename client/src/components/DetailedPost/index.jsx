@@ -15,6 +15,7 @@ import Avatar from "@mui/material/Avatar";
 import profile1 from "../../assets/profile-1.jpg";
 import profile2 from "../../assets/profile-2.jpg";
 import profile3 from "../../assets/profile-3.jpg";
+import { SimilarPost } from "../../components";
 const PostDetail = () => {
   return (
     <Wrap>
@@ -220,6 +221,14 @@ const PostDetail = () => {
           </CommentCard>
         </Comments>
       </CommentSection>
+      <Box
+        sx={{
+          width: "100%",
+          // backgroundColor: "red",
+        }}
+      >
+        <SimilarPost />
+      </Box>
     </Wrap>
   );
 };

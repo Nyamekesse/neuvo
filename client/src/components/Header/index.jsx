@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Title } from "./style";
 import MenuIcon from "@mui/icons-material/Menu";
 import { IconButton, Typography } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
@@ -19,7 +20,7 @@ const Header = () => {
             fontWeight={700}
             fontSize={36}
           >
-            BlogX
+            <Link to={"/"}>BlogX</Link>
           </Typography>
         </Title>
       </Container>

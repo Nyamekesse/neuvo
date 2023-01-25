@@ -16,6 +16,7 @@ import logo from "../../assets/blogX.png";
 import GoogleIcon from "../../assets/google-g-2015.svg";
 import Divider from "@mui/material/Divider";
 import TrendingFlatIcon from "@mui/icons-material/TrendingFlat";
+import { Link } from "react-router-dom";
 const LogIn = () => {
   return (
     <Wrap>
@@ -64,7 +65,7 @@ const LogIn = () => {
             </Typography>
             <Button
               variant="outlined"
-              sx={{ textTransform: "capitalize", marginTop: "10%" }}
+              sx={{ textTransform: "initial", marginTop: "10%" }}
               fullWidth
             >
               <Box width={"20px"} height={"20px"} marginRight={1}>
@@ -108,7 +109,7 @@ const LogIn = () => {
                   placeholder="Enter user email or username"
                   fullWidth
                   size="small"
-                  requi
+                  required
                   sx={{ backgroundColor: "#fff" }}
                 />
               </InputSection>
@@ -148,6 +149,13 @@ const LogIn = () => {
               log in
             </Button>
           </Form>
+          <Typography component={"span"} variant="caption" mt={2}>
+            Don't have an account?{" "}
+            <Link to={"/sign-up"}>
+              {" "}
+              <span style={{ textDecoration: "underline" }}>Sign up</span>
+            </Link>
+          </Typography>
         </FormArea>
       </Container>
     </Wrap>

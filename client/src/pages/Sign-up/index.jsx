@@ -3,14 +3,19 @@ import {
   Container,
   Form,
   FormArea,
+  Image,
+  Indicator,
   InputSection,
   Showcase,
+  Validators,
   Wrap,
+  Wrapper,
 } from "./style";
-import { Box, IconButton, TextField, Typography } from "@mui/material";
+import { Box, Button, Radio, TextField, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import Display from "../../assets/content_creator_re_pt5b.svg";
 const SignUp = () => {
   return (
     <Wrap>
@@ -23,7 +28,7 @@ const SignUp = () => {
             <Typography
               component={"span"}
               variant="caption"
-              fontSize={16}
+              fontSize={12}
               fontWeight={400}
               mt={2}
               color={"#333333"}
@@ -38,7 +43,7 @@ const SignUp = () => {
               <Typography
                 color={"#50565F"}
                 fontWeight={400}
-                fontSize={16}
+                fontSize={15}
                 component={"p"}
                 variant="body1"
                 mb={1}
@@ -58,7 +63,7 @@ const SignUp = () => {
               <Typography
                 color={"#50565F"}
                 fontWeight={400}
-                fontSize={16}
+                fontSize={14}
                 component={"p"}
                 variant="body1"
                 mb={1}
@@ -87,7 +92,7 @@ const SignUp = () => {
                 <Typography
                   color={"#50565F"}
                   fontWeight={400}
-                  fontSize={16}
+                  fontSize={14}
                   component={"p"}
                   variant="body1"
                   mt={3}
@@ -95,28 +100,24 @@ const SignUp = () => {
                 >
                   Password
                 </Typography>
-                <Box
+                <Button
+                  variant="text"
+                  startIcon={<VisibilityOffIcon />}
+                  size="medium"
+                  disableElevation
+                  disableRipple
+                  disableFocusRipple
+                  fontSize={14}
                   sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
+                    color: "rgba(102, 102, 102, 0.8)",
+                    textTransform: "initial",
+                    padding: 0,
+                    margin: 0,
+                    fontSize: "14px",
                   }}
                 >
-                  <VisibilityOffIcon
-                    sx={{
-                      width: "15px",
-                      marginRight: "10px",
-                      color: "rgba(102, 102, 102, 0.8)",
-                    }}
-                  />
-                  <Typography
-                    fontWeight={400}
-                    fontSize={18}
-                    sx={{ color: "rgba(102, 102, 102, 0.8)" }}
-                  >
-                    Hide
-                  </Typography>
-                </Box>
+                  Hide
+                </Button>
               </Box>
               <TextField
                 placeholder="Enter your password"
@@ -127,9 +128,109 @@ const SignUp = () => {
                 sx={{ backgroundColor: "#fff" }}
               />
             </InputSection>
+            <Validators>
+              <Wrapper>
+                <Indicator>
+                  <Typography
+                    fontSize={12}
+                    fontWeight={400}
+                    color={" rgba(102, 102, 102, 0.6);"}
+                  >
+                    Use 8 or more characters
+                  </Typography>
+                </Indicator>
+
+                <Indicator>
+                  <Typography
+                    fontSize={12}
+                    fontWeight={400}
+                    color={" rgba(102, 102, 102, 0.6);"}
+                  >
+                    One Uppercase character
+                  </Typography>
+                </Indicator>
+                <Indicator>
+                  <Typography
+                    fontSize={12}
+                    fontWeight={400}
+                    color={" rgba(102, 102, 102, 0.6);"}
+                  >
+                    One Lowercase character
+                  </Typography>
+                </Indicator>
+                <Indicator>
+                  {" "}
+                  <Typography
+                    fontSize={12}
+                    fontWeight={400}
+                    color={" rgba(102, 102, 102, 0.6);"}
+                  >
+                    One special character
+                  </Typography>
+                </Indicator>
+                <Indicator>
+                  {" "}
+                  <Typography
+                    fontSize={12}
+                    fontWeight={400}
+                    color={" rgba(102, 102, 102, 0.6);"}
+                  >
+                    One number
+                  </Typography>
+                </Indicator>
+              </Wrapper>
+            </Validators>
+            <Typography fontWeight={400} fontSize={12} color={"#333333"} mt={2}>
+              By creating an account, you agree to the{" "}
+              <Link to={"/"}>
+                <span style={{ textDecoration: "underline" }}>
+                  Terms of use
+                </span>
+              </Link>{" "}
+              and{" "}
+              <Link to={"/"}>
+                <span style={{ textDecoration: "underline" }}>
+                  Privacy Policy{" "}
+                </span>
+              </Link>
+              .
+            </Typography>
+            <Box>
+              <Button
+                variant={"contained"}
+                sx={{
+                  marginTop: "10px",
+                  textTransform: "initial",
+                  background:
+                    "linear-gradient(89.95deg, #E73125 0.04%, #E74825 99.96%)",
+                }}
+                type="submit"
+                fullWidth={false}
+              >
+                Create an account
+              </Button>
+            </Box>
+            <Typography
+              component={"span"}
+              variant="caption"
+              fontSize={12}
+              fontWeight={400}
+              mt={2}
+              color={"#333333"}
+            >
+              Already have an account?{" "}
+              <Link to={"/log-in"}>
+                {" "}
+                <span style={{ textDecoration: "underline" }}>Log in</span>
+              </Link>
+            </Typography>
           </Form>
         </FormArea>
-        <Showcase></Showcase>
+        <Showcase>
+          <Image>
+            <img src={Display} alt={Display} />
+          </Image>
+        </Showcase>
       </Container>
     </Wrap>
   );

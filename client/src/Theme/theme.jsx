@@ -58,6 +58,11 @@ const theme = createTheme({
             backgroundColor: "#555555",
           },
         },
+        text: {
+          ":hover, :focus": {
+            backgroundColor: "transparent",
+          },
+        },
       },
     },
   },

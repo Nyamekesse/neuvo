@@ -25,8 +25,9 @@ export const Showcase = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   padding: "8% 5% 3%",
   height: "100%",
-  backgroundColor: "pink",
-  //   backgroundColor: "#E5E5E5",
+  backgroundColor: "#E5E5E5",
+  alignItems: "center",
+  justifyContent: "center",
 }));
 
 export const FormArea = styled(Box)(({ theme }) => ({
@@ -34,14 +35,12 @@ export const FormArea = styled(Box)(({ theme }) => ({
   height: "100%",
   display: "flex",
   flexDirection: "column",
-  padding: "5% 5%",
+  padding: "3% 5%",
   backgroundColor: "#fff",
 }));
 
 export const Image = styled(Box)(({ theme }) => ({
-  width: "350px",
-  justifySelf: "baseline",
-  margin: "20% auto 0",
+  width: "100%",
 }));
 
 export const Form = styled(Box)(({ theme }) => ({
@@ -49,13 +48,26 @@ export const Form = styled(Box)(({ theme }) => ({
   flexDirection: "column",
 }));
 
-export const Logo = styled(Box)(({ theme }) => ({
-  width: "150px",
-  margin: "0 auto",
-}));
-
 export const InputSection = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   marginTop: "2%",
+}));
+
+export const Validators = styled(Box)(({ theme }) => ({
+  width: "100%",
+  margin: "5px 0",
+}));
+
+export const Wrapper = styled("ul")(({ theme }) => ({
+  display: "flex",
+  flexWrap: "wrap",
+  width: "100%",
+  alignItems: "start",
+  justifyContent: "start",
+}));
+
+export const Indicator = styled("li")(({ theme }) => ({
+  margin: "2px 10px",
+  width: "150px",
 }));

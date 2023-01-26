@@ -1,7 +1,7 @@
 import React from "react";
-import { Container, Title } from "./style";
+import { ButtonGroup, Container, Title } from "./style";
 import MenuIcon from "@mui/icons-material/Menu";
-import { IconButton, Typography } from "@mui/material";
+import { Button, IconButton, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
 const Header = () => {
@@ -23,6 +23,35 @@ const Header = () => {
             <Link to={"/"}>BlogX</Link>
           </Typography>
         </Title>
+        <ButtonGroup>
+          <Button
+            variant="outlined"
+            size="medium"
+            disableElevation
+            sx={{
+              textTransform: "initial",
+              margin: "0 5px",
+              border: "1px solid #111",
+
+              ":hover, :active": {
+                border: "1px solid #111",
+                backgroundColor: "initial",
+              },
+            }}
+          >
+            <Link to={"/log-in"}>Log in</Link>
+          </Button>
+          <Button
+            variant="contained"
+            size="medium"
+            disableElevation
+            sx={{ backgroundColor: "#111", margin: "0 5px" }}
+          >
+            <Link to={"/sign-up"} style={{ color: "#fff" }}>
+              Sign up
+            </Link>
+          </Button>
+        </ButtonGroup>
       </Container>
     </>
   );

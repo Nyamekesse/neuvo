@@ -9,8 +9,15 @@ export const Container = styled(Box)(({ theme }) => ({
   alignItems: "center",
   backgroundColor: "#fafafa",
   marginBottom: "2%",
+  justifyContent: "space-between",
 }));
 
 export const Title = styled(Box)(({ theme }) => ({
-  width: "100%",
+  // width: "100%",
+}));
+
+export const ButtonGroup = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  width: "auto",
 }));

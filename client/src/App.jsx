@@ -4,7 +4,6 @@ import { Footer, Header } from "./components";
 import Views from "./views/Views";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
-
 const AppContainer = styled(Box)({
   display: "flex",
   flexDirection: "column",

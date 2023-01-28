@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Box from "@mui/material/Box";
@@ -15,9 +15,22 @@ import {
   Wrapper,
 } from "./style";
 const FormAreaSection = () => {
+  const [state, setState] = useState({
+    email: "",
+    username: "",
+    password: "",
+  });
+  const handleFormChange = (event) => {
+    setState({ ...state, [event.target.name]: event.target.value });
+  };
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    console.log(state);
+    setState({ email: "", username: "", password: "" });
+  };
   return (
     <FormArea>
-      <Form component={"form"}>
+      <Form component={"form"} onSubmit={handleFormSubmit}>
         <Typography color={"#333333"} fontWeight={500} fontSize={32}>
           Welcome to BlogX Community
         </Typography>
@@ -51,7 +64,10 @@ const FormAreaSection = () => {
             fullWidth
             size="small"
             required
+            name="email"
             type={"email"}
+            value={state.email}
+            onChange={handleFormChange}
             sx={{ backgroundColor: "#fff" }}
           />
         </InputSection>
@@ -71,7 +87,10 @@ const FormAreaSection = () => {
             fullWidth
             size="small"
             required
+            name="username"
             type={"text"}
+            value={state.username}
+            onChange={handleFormChange}
             sx={{ backgroundColor: "#fff" }}
           />
         </InputSection>
@@ -120,7 +139,10 @@ const FormAreaSection = () => {
             fullWidth
             size="small"
             required
+            name="password"
             type={"password"}
+            value={state.password}
+            onChange={handleFormChange}
             sx={{ backgroundColor: "#fff" }}
           />
         </InputSection>

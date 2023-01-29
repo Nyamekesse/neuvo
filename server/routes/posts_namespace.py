@@ -1,7 +1,8 @@
 from flask_restx import Resource, Namespace, fields
 from models.models import Post
 from flask_jwt_extended import jwt_required
-from flask import request, make_response, jsonify
+from flask import request, jsonify, abort
+
 
 post_ns = Namespace("posts", description="Namespace for post")
 
@@ -13,63 +14,102 @@ create_post_model_data = post_ns.model(
         "user_id": fields.String(),
     },
 )
-posts_model = post_ns.model(
-    "Posts",
-    {
-        "id": fields.String(),
-        "title": fields.String(),
-        "date_posted": fields.String(),
-        "post_content": fields.String(),
-        "user_id": fields.String(),
-    },
-)
+
+
+POSTS_PER_PAGE = 5
 
 
 @post_ns.route("/", methods=["GET", "POST"])
 class PostsResource(Resource):
-    @post_ns.marshal_list_with(posts_model)
+    @staticmethod
+    def paginate_display(request, queried_posts):
+        """pagination"""
+
+        page = request.args.get("page", 1, type=int)
+        start = (page - 1) * POSTS_PER_PAGE
+        end = start + POSTS_PER_PAGE
+        return [post.format() for post in queried_posts[start:end]]
+
     def get(self):
         """get all posts from database"""
-        posts = Post.query.order_by(Post.title).all()
-        return posts, 200
 
-    @post_ns.marshal_with(posts_model)
+        try:
+            posts = Post.query.order_by(Post.title).all()
+            number_of_all_posts = len(posts)
+            posts = self.paginate_display(request, posts)
+
+            return jsonify(
+                {
+                    "success": True,
+                    "paginated_posts": posts,
+                    "total_posts": number_of_all_posts,
+                }
+            )
+
+        except:
+            abort(404)
+
     @post_ns.expect(create_post_model_data)
     @jwt_required()
     def post(self):
         """create a new post"""
-        data = request.get_json()
-        new_post = Post(
-            title=data.get("title"),
-            post_content=data.get("post_content"),
-            user_id=data.get("user_id"),
-        )
-        new_post.insert()
-        return new_post, 201
+        try:
+            data = request.get_json()
+            new_post = Post(
+                title=data.get("title"),
+                post_content=data.get("post_content"),
+                user_id=data.get("user_id"),
+            )
+            new_post.insert()
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "new_post_created": new_post.format(),
+                    }
+                ),
+            )
+
+        except:
+            abort(401)
 
 
-@post_ns.route("/post/<id>")
+@post_ns.route("/details", methods=["GET"])
 class PostsResource(Resource):
-    @post_ns.marshal_with(posts_model)
-    def get(self, id):
+    def get(self):
         """get a specific post"""
-        single_post = Post.query.get_or_404(id)
-        return single_post, 200
+        try:
+            id = request.args.get("id", type=str)
+            single_post = Post.query.get_or_404(id)
 
-    @post_ns.marshal_with(posts_model)
+            return jsonify({"success": True, "post": single_post.format()})
+
+        except:
+            abort(404)
+
+
+@post_ns.route("/post", methods=["PUT", "DELETE"])
+class PostsResource(Resource):
     @jwt_required()
-    def put(self, id):
+    def put(self):
         """update a specific post"""
+        id = request.args.get("id", type=str)
         data = request.get_json()
         post_to_update = Post.query.get_or_404(id)
         post_to_update.update(data.get("title"), data.get("post_content"))
-        return post_to_update, 200
 
-    @post_ns.marshal_with(posts_model)
+        return jsonify({"success": True, "updated_post": post_to_update.format()})
+
     @jwt_required()
-    def delete(self, id):
+    def delete(self):
         """delete a specific post"""
-        post_to_delete = Post.query.get_or_404(id)
-        post_to_delete.delete()
 
-        return post_to_delete, 200
+        try:
+            id = request.args.get("id", type=str)
+            post_to_delete = Post.query.get_or_404(id)
+            post_to_delete.delete()
+            return (
+                jsonify({"success": True, "deleted_post": post_to_delete.format()}),
+            )
+        except:
+            abort(404)

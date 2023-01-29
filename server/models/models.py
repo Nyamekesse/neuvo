@@ -80,5 +80,14 @@ class Post(db.Model):
         self.post_content = post_content
         db.session.commit()
 
+    def format(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "date_posted": self.date_posted,
+            "post_content": self.post_content,
+            "user_id": self.user_id,
+        }
+
     def __repr__(self):
         return f"Post('{self.id}', '{self.title}', '{self.date_posted}', '{self.post_content}')"

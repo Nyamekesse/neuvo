@@ -25,7 +25,7 @@ class UsersResource(Resource):
         return users, 200
 
 
-@user_ns.route("/user/<id>")
+@user_ns.route("/<id>")
 class UsersResource(Resource):
     @user_ns.marshal_with(users_model)
     @jwt_required()

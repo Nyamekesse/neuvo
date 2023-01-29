@@ -13,16 +13,12 @@ from flask_cors import CORS
 
 def create_app(config):
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(config)
-    # db.init_app(app)
-    with app.app_context():
-        db.init_app(app)
-
-        db.create_all()
-    Migrate(app, db)
+    db.init_app(app)
+    migrate = Migrate(app, db)
     Bcrypt(app)
     JWTManager(app)
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
     api = Api(app, doc="/docs")
     api.add_namespace(auth_ns)
     api.add_namespace(post_ns)

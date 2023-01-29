@@ -2,19 +2,24 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchPost } from "../../api";
 
 const initialPostState = {
-  loading: false,
+  isLoading: true,
   posts: [],
+  numberOfPages: 1,
+  currentPage: 1,
   error: "",
 };
 
-export const getAllPosts = createAsyncThunk("post/getAllPosts", async () => {
-  try {
-    const { data } = await fetchPost();
-    return data;
-  } catch (error) {
-    console.log(error.message);
+export const getAllPosts = createAsyncThunk(
+  "post/getAllPosts",
+  async (page) => {
+    try {
+      const { data } = await fetchPost(page);
+      return data;
+    } catch (error) {
+      console.log(error.message);
+    }
   }
-});
+);
 
 const postSlice = createSlice({
   name: "post",
@@ -32,14 +37,16 @@ const postSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(getAllPosts.pending, (state, action) => {
-      state.loading = true;
+      state.isLoading = true;
     });
     builder.addCase(getAllPosts.fulfilled, (state, action) => {
-      state.loading = false;
-      state.posts = action.payload;
+      state.isLoading = false;
+      state.posts = action.payload.results;
+      state.currentPage = action.payload.current_page;
+      state.numberOfPages = action.payload.number_of_pages;
     });
     builder.addCase(getAllPosts.rejected, (state, action) => {
-      state.loading = false;
+      state.isLoading = false;
       state.error = error.message;
     });
   },

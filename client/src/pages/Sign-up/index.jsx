@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Image, Showcase, Wrap } from "./style";
 import Display from "../../assets/content_creator_re_pt5b.svg";
 import FormAreaSection from "./FormArea";
+
 const SignUp = () => {
   return (
     <Wrap>

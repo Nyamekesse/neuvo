@@ -14,20 +14,28 @@ import {
   Validators,
   Wrapper,
 } from "./style";
+import { useDispatch, useSelector } from "react-redux";
+import { signUpUser } from "../../../features/user/userSlice";
 const FormAreaSection = () => {
+  const dispatch = useDispatch();
   const [state, setState] = useState({
     email: "",
     username: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const handleFormChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
   };
   const handleFormSubmit = (event) => {
     event.preventDefault();
-    console.log(state);
+    // console.log(state);
+    dispatch(signUpUser(state));
     setState({ email: "", username: "", password: "" });
   };
+
+  // const newUser = useSelector((state) => state.user);
+  // console.log(newUser);
   return (
     <FormArea>
       <Form component={"form"} onSubmit={handleFormSubmit}>
@@ -117,12 +125,17 @@ const FormAreaSection = () => {
             </Typography>
             <Button
               variant="text"
-              startIcon={<VisibilityOffIcon />}
+              startIcon={
+                showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />
+              }
               size="medium"
               disableElevation
               disableRipple
               disableFocusRipple
               fontSize={14}
+              onClick={() => {
+                setShowPassword(!showPassword);
+              }}
               sx={{
                 color: "rgba(102, 102, 102, 0.8)",
                 textTransform: "initial",
@@ -131,7 +144,7 @@ const FormAreaSection = () => {
                 fontSize: "14px",
               }}
             >
-              Hide
+              {showPassword ? "Hide" : "Show"}
             </Button>
           </Box>
           <TextField
@@ -140,7 +153,7 @@ const FormAreaSection = () => {
             size="small"
             required
             name="password"
-            type={"password"}
+            type={showPassword ? "text" : "password"}
             value={state.password}
             onChange={handleFormChange}
             sx={{ backgroundColor: "#fff" }}

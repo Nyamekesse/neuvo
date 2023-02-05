@@ -1,5 +1,5 @@
 from flask_restx import Resource, Namespace, fields
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response, abort
 from models.models import User
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
@@ -35,32 +35,37 @@ class SignUp(Resource):
     def post(self):
         """create a new user"""
         data = request.get_json()
-        check_user = User.query.filter_by(username=data.get("username")).first()
-        if check_user is not None:
-            return jsonify(
-                {
-                    "success": False,
-                    "message": f"User with username {check_user.username} already exist",
-                }
-            )
-        else:
-            new_user = User(
-                username=data.get("username"),
-                user_email=data.get("user_email"),
-                password=generate_password_hash(data.get("password")).decode("utf-8"),
-                avatar=data.get("avatar"),
-            )
-            new_user.insert()
-            return make_response(
-                jsonify(
+        if not data:
+            abort(400)
+        try:
+            check_user = User.query.filter_by(username=data.get("username")).first()
+            if check_user is not None:
+                return jsonify(
+                    {
+                        "success": False,
+                        "message": f"User with username {check_user.username.format()} already exist",
+                    }
+                )
+
+            else:
+                new_user = User(
+                    username=data.get("username"),
+                    user_email=data.get("email"),
+                    password=generate_password_hash(data.get("password")).decode(
+                        "utf-8"
+                    ),
+                    avatar=data.get("avatar"),
+                )
+                new_user.insert()
+                return jsonify(
                     {
                         "success": True,
                         "message": "User successfully created",
-                        "user_id": new_user.id,
+                        "new_user": new_user.username.format(),
                     }
-                ),
-                201,
-            )
+                )
+        except:
+            abort(400)
 
 
 @auth_ns.route("/login")

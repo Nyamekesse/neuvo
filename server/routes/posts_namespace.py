@@ -1,3 +1,4 @@
+import math
 from flask_restx import Resource, Namespace, fields
 from models.models import Post
 from flask_jwt_extended import jwt_required
@@ -22,10 +23,9 @@ POSTS_PER_PAGE = 5
 @post_ns.route("/", methods=["GET", "POST"])
 class PostsResource(Resource):
     @staticmethod
-    def paginate_display(request, queried_posts):
+    def paginate_display(page, queried_posts):
         """pagination"""
 
-        page = request.args.get("page", 1, type=int)
         start = (page - 1) * POSTS_PER_PAGE
         end = start + POSTS_PER_PAGE
         return [post.format() for post in queried_posts[start:end]]
@@ -34,20 +34,22 @@ class PostsResource(Resource):
         """get all posts from database"""
 
         try:
+
             posts = Post.query.order_by(Post.title).all()
             number_of_all_posts = len(posts)
-            posts = self.paginate_display(request, posts)
-
+            page = request.args.get("page", 1, type=int)
+            posts = self.paginate_display(page, posts)
             return jsonify(
                 {
                     "success": True,
-                    "paginated_posts": posts,
-                    "total_posts": number_of_all_posts,
+                    "results": posts,
+                    "current_page": request.args.get("page"),
+                    "number_of_pages": math.ceil(number_of_all_posts / POSTS_PER_PAGE),
                 }
             )
 
         except:
-            abort(404)
+            abort(400)
 
     @post_ns.expect(create_post_model_data)
     @jwt_required()
@@ -65,7 +67,7 @@ class PostsResource(Resource):
                 jsonify(
                     {
                         "success": True,
-                        "new_post_created": new_post.format(),
+                        "created_post": new_post.format(),
                     }
                 ),
             )

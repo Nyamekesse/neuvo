@@ -43,6 +43,15 @@ class User(db.Model):
         self.avatar = avatar
         db.session.commit()
 
+    def format(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "user_email": self.user_email,
+            "password": self.password,
+            "avatar": self.avatar,
+        }
+
     def __repr__(self):
         return (
             f"User('{self.id}', '{self.username}', '{self.password}', '{self.avatar}')"

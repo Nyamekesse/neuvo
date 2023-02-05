@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Box from "@mui/material/Box";
@@ -18,6 +18,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { signUpUser } from "../../../features/user/userSlice";
 const FormAreaSection = () => {
   const dispatch = useDispatch();
+  const createdUser = useSelector((store) => store.user.newUser);
+  useEffect(() => {
+    if (createdUser) setState({ email: "", username: "", password: "" });
+  }, [createdUser]);
   const [state, setState] = useState({
     email: "",
     username: "",
@@ -29,13 +33,10 @@ const FormAreaSection = () => {
   };
   const handleFormSubmit = (event) => {
     event.preventDefault();
-    // console.log(state);
+
     dispatch(signUpUser(state));
-    setState({ email: "", username: "", password: "" });
   };
 
-  // const newUser = useSelector((state) => state.user);
-  // console.log(newUser);
   return (
     <FormArea>
       <Form component={"form"} onSubmit={handleFormSubmit}>

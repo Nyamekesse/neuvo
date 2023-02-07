@@ -65,6 +65,14 @@ const theme = createTheme({
         },
       },
     },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        label: {
+          color: "#50565F",
+          fontSize: "14px",
+        },
+      },
+    },
   },
 });
 

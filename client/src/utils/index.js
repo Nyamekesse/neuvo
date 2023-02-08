@@ -8,3 +8,8 @@ export const initialSignUpValues = {
   confirmPassword: "",
   agreeTerms: false,
 };
+
+export const initialLogInValues = {
+  usernameOrEmail: "",
+  password: "",
+};

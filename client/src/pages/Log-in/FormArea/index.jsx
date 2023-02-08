@@ -1,17 +1,46 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import React from "react";
+import React, { useEffect } from "react";
 import Divider from "@mui/material/Divider";
 import TrendingFlatIcon from "@mui/icons-material/TrendingFlat";
-import { Form, FormArea, InputGroup, InputSection, Root } from "./style";
-import { Link } from "react-router-dom";
+import { Form, FormArea, InputGroup, Root } from "./style";
+import { Link, useNavigate } from "react-router-dom";
 import GoogleIcon from "../../../assets/google-g-2015.svg";
-import TextField from "@mui/material/TextField";
+import { TextFields } from "../../../components";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { initialLogInValues } from "../../../utils";
+import { loginInUserSchema } from "../../../validation";
+import { useDispatch } from "react-redux";
+import { login } from "../../../features/auth/authenticationSlice";
 const FormSection = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isValid, isSubmitSuccessful },
+  } = useForm({
+    defaultValues: initialLogInValues,
+    resolver: yupResolver(loginInUserSchema),
+  });
+  const onSubmit = (data) => {
+    isValid ? dispatch(login(data)) & reset() : null;
+  };
+  useEffect(() => {
+    isSubmitSuccessful ? navigate("/", { replace: true }) : null;
+  }, [isSubmitSuccessful]);
   return (
     <FormArea>
-      <Form component={"form"}>
+      <Form
+        component={"form"}
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        autoComplete="off"
+      >
         <Typography
           variant="h6"
           component={"h1"}
@@ -56,51 +85,29 @@ const FormSection = () => {
           </Divider>
         </Root>
         <InputGroup>
-          <InputSection>
-            <Typography
-              color={"#50565F"}
-              fontWeight={500}
-              fontSize={16}
-              component={"p"}
-              variant="body1"
-              mb={1}
-            >
-              Username or Email
-            </Typography>
-            <TextField
-              placeholder="Enter user email or username"
-              fullWidth
-              size="small"
-              required
-              sx={{ backgroundColor: "#fff" }}
-            />
-          </InputSection>
-          <InputSection>
-            <Typography
-              color={"#50565F"}
-              fontWeight={500}
-              fontSize={16}
-              component={"p"}
-              variant="body1"
-              mt={3}
-              mb={1}
-            >
-              Password
-            </Typography>
-            <TextField
-              placeholder="Enter your password"
-              fullWidth
-              size="small"
-              required
-              sx={{ backgroundColor: "#fff" }}
-            />
-          </InputSection>
+          <TextFields
+            label="Username or Email"
+            placeholder="enter a username or email"
+            type={"text"}
+            control={control}
+            name="usernameOrEmail"
+            errors={errors}
+          />
+          <TextFields
+            label="Password"
+            placeholder="enter your password"
+            type={"password"}
+            control={control}
+            name="password"
+            errors={errors}
+          />
         </InputGroup>
         <Button
           variant="contained"
           endIcon={<TrendingFlatIcon />}
           fullWidth
           disableElevation
+          type="submit"
           sx={{
             marginTop: "30px",
             textTransform: "capitalize",

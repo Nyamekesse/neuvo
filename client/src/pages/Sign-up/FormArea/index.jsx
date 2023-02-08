@@ -11,6 +11,7 @@ import { signup } from "../../../features/auth/authenticationSlice";
 import { CheckBoxes, TextFields } from "../../../components";
 import { signUpUserSchema } from "../../../validation";
 import { initialSignUpValues } from "../../../utils";
+import { InputGroup } from "../../Log-in/FormArea/style";
 const FormAreaSection = () => {
   const navigate = useNavigate();
 
@@ -50,55 +51,58 @@ const FormAreaSection = () => {
         <Typography color={"#333333"} fontWeight={500} fontSize={32}>
           Welcome to BlogX Community
         </Typography>
-
-        <TextFields
-          label="Username"
-          placeholder="enter your username"
-          type={"text"}
-          control={control}
-          name="username"
-          errors={errors}
-        />
-        <TextFields
-          label="Email"
-          placeholder="enter your email address"
-          type={"email"}
-          control={control}
-          name="email"
-          errors={errors}
-        />
-        <TextFields
-          label="Password"
-          placeholder="enter a password"
-          type={"password"}
-          control={control}
-          name="password"
-          errors={errors}
-        />
-        <TextFields
-          label="Confirm Password"
-          placeholder="re-enter password"
-          type={"password"}
-          control={control}
-          name="confirmPassword"
-          errors={errors}
-        />
-        <Typography fontWeight={400} fontSize={12} color={"#333333"} mt={2}>
-          By creating an account, you agree to the
-          <Link to={"/"}>
-            <span style={{ textDecoration: "underline" }}>Terms of use</span>
-          </Link>
-          &nbsp; and &nbsp;
-          <Link to={"/"}>
-            <span style={{ textDecoration: "underline" }}>Privacy Policy</span>
-          </Link>
-        </Typography>
-        <CheckBoxes
-          label="I Agree to Terms and Privacy Policy"
-          control={control}
-          name="agreeTerms"
-          errors={errors}
-        />
+        <InputGroup>
+          <TextFields
+            label="Username"
+            placeholder="enter your username"
+            type={"text"}
+            control={control}
+            name="username"
+            errors={errors}
+          />
+          <TextFields
+            label="Email"
+            placeholder="enter your email address"
+            type={"email"}
+            control={control}
+            name="email"
+            errors={errors}
+          />
+          <TextFields
+            label="Password"
+            placeholder="enter a password"
+            type={"password"}
+            control={control}
+            name="password"
+            errors={errors}
+          />
+          <TextFields
+            label="Confirm Password"
+            placeholder="re-enter password"
+            type={"password"}
+            control={control}
+            name="confirmPassword"
+            errors={errors}
+          />
+          <Typography fontWeight={400} fontSize={12} color={"#333333"} mt={2}>
+            By creating an account, you agree to the
+            <Link to={"/"}>
+              <span style={{ textDecoration: "underline" }}>Terms of use</span>
+            </Link>
+            &nbsp; and &nbsp;
+            <Link to={"/"}>
+              <span style={{ textDecoration: "underline" }}>
+                Privacy Policy
+              </span>
+            </Link>
+          </Typography>
+          <CheckBoxes
+            label="I Agree to Terms and Privacy Policy"
+            control={control}
+            name="agreeTerms"
+            errors={errors}
+          />
+        </InputGroup>
         <Box>
           <Button
             variant={"contained"}

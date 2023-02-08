@@ -2,7 +2,10 @@ import * as yup from "yup";
 import { passwdRegExp } from "../utils";
 // creating new user schema for validation
 export const signUpUserSchema = yup.object({
-  username: yup.string().required("type in your username"),
+  username: yup
+    .string()
+    .min(3, "username must be more than 3 characters")
+    .required("type in your username"),
   email: yup.string().required().email("kindly enter a valid email"),
   password: yup
     .string()
@@ -15,4 +18,17 @@ export const signUpUserSchema = yup.object({
     .string()
     .oneOf([yup.ref("password"), null], "password must match"),
   agreeTerms: yup.bool().oneOf([true], "field must be checked"),
+});
+
+export const loginInUserSchema = yup.object({
+  usernameOrEmail: yup
+    .string()
+    .test("is-email-or-username", "Invalid username or email", (value) => {
+      return (
+        yup.string().email().isValidSync(value) ||
+        yup.string().min(3).isValidSync(value)
+      );
+    })
+    .required("enter a username or an email address"),
+  password: yup.string().required("kindly enter a password"),
 });

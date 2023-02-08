@@ -39,6 +39,8 @@ export const login = createAsyncThunk(
           thunkAPI.dispatch(
             displayAlert({ text: data.message, severity: SUCCESS })
           );
+          console.log(data);
+          localStorage.setItem("profile", JSON.stringify({ ...data?.profile }));
           return data;
         } else {
           thunkAPI.dispatch(
@@ -53,7 +55,7 @@ export const login = createAsyncThunk(
   }
 );
 
-const initialPostState = {
+const initialAuthState = {
   isLoading: true,
   newUser: "",
   message: "",
@@ -65,7 +67,7 @@ const initialPostState = {
 };
 const authenticationSlice = createSlice({
   name: "authentication",
-  initialState: initialPostState,
+  initialState: initialAuthState,
   extraReducers: (builder) => {
     builder.addCase(signup.pending, (state) => {
       state.isLoading = true;

@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Typography from "@mui/material/Typography";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Form, FormArea } from "./style";
 import { useDispatch } from "react-redux";
-import { signUpUser } from "../../../features/user/userSlice";
+import { signup } from "../../../features/auth/authenticationSlice";
 import { CheckBoxes, TextFields } from "../../../components";
 import { signUpUserSchema } from "../../../validation";
 import { initialSignUpValues } from "../../../utils";
 const FormAreaSection = () => {
+  const navigate = useNavigate();
+
   const {
     handleSubmit,
     control,
     reset,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isSubmitSuccessful },
   } = useForm({
     defaultValues: initialSignUpValues,
     resolver: yupResolver(signUpUserSchema),
@@ -26,7 +28,7 @@ const FormAreaSection = () => {
   const onSubmit = (data) => {
     isValid
       ? dispatch(
-          signUpUser({
+          signup({
             username: data.username,
             email: data.email,
             password: data.password,
@@ -34,7 +36,9 @@ const FormAreaSection = () => {
         ) & reset()
       : null;
   };
-
+  useEffect(() => {
+    isSubmitSuccessful ? navigate("/log-in", { replace: true }) : null;
+  }, [isSubmitSuccessful]);
   return (
     <FormArea>
       <Form

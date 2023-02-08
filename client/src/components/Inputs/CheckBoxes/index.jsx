@@ -11,14 +11,7 @@ const CheckBoxes = ({ label, name, control, errors }) => {
         render={({ field }) => (
           <FormControlLabel
             {...field}
-            control={
-              <Checkbox
-                required
-                onClick={(event) => {
-                  console.log(event.target.checked);
-                }}
-              />
-            }
+            control={<Checkbox required />}
             label={label}
           />
         )}

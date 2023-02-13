@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { createUser, loginUser } from "../../api";
 import { displayAlert } from "../alerts/alertSlice";
-import { ERROR, SUCCESS } from "../../constants";
+import { ACCESS_TOKEN, ERROR, REFRESH_TOKEN, SUCCESS } from "../../constants";
+import { localStorageSet } from "../../utils";
 export const signup = createAsyncThunk(
   "authentication/signup",
   async (data, thunkAPI) => {
@@ -40,7 +41,7 @@ export const login = createAsyncThunk(
             displayAlert({ text: data.message, severity: SUCCESS })
           );
           console.log(data);
-          localStorage.setItem("profile", JSON.stringify({ ...data?.profile }));
+          // localStorage.setItem("profile", JSON.stringify({ ...data?.profile }));
           return data;
         } else {
           thunkAPI.dispatch(
@@ -56,26 +57,25 @@ export const login = createAsyncThunk(
 );
 
 const initialAuthState = {
-  isLoading: true,
-  newUser: "",
-  message: "",
+  isLoading: false,
   profile: {},
-  accessToken: "",
-  refreshToken: "",
   isLoggedIn: false,
   success: false,
 };
 const authenticationSlice = createSlice({
   name: "authentication",
   initialState: initialAuthState,
+  reducers: {
+    logout: () => {
+      return initialAuthState;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(signup.pending, (state) => {
       state.isLoading = true;
     });
     builder.addCase(signup.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      state.newUser = payload?.new_user;
-      state.message = payload?.message;
       state.success = payload?.success;
     });
     builder.addCase(signup.rejected, (state) => {
@@ -87,11 +87,10 @@ const authenticationSlice = createSlice({
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.isLoading = false;
       state.profile = payload?.profile;
-      state.accessToken = payload?.access_token;
-      state.refreshToken = payload?.refresh_token;
-      state.message = payload?.message;
       state.success = payload?.success;
       state.isLoggedIn = true;
+      localStorageSet(ACCESS_TOKEN, payload?.access_token);
+      localStorageSet(REFRESH_TOKEN, payload?.refresh_token);
     });
     builder.addCase(login.rejected, (state) => {
       state.isLoading = false;
@@ -99,4 +98,5 @@ const authenticationSlice = createSlice({
   },
 });
 
+export const { logout } = authenticationSlice.actions;
 export default authenticationSlice.reducer;

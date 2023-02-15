@@ -7,14 +7,20 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from image_utils import generate_default_image
+from errors import (
+    handle_bad_request,
+    handle_forbidden,
+    handle_not_found,
+    handle_method_not_allowed,
+    handle_internal_server_error,
+)
 
-auth_blueprint = Blueprint(
+auth_bp = Blueprint(
     "auth", __name__, url_prefix="/auth", description="Blueprint for authentication"
 )
 
 
-@auth_blueprint.route("/signup", methods=["POST"])
+@auth_bp.route("/signup", methods=["POST"])
 def create_user():
     """create a new user"""
     data = request.get_json()
@@ -61,7 +67,7 @@ def create_user():
         abort(400)
 
 
-@auth_blueprint.route("/login", methods=["POST"])
+@auth_bp.route("/login", methods=["POST"])
 def login_user():
     data = request.get_json()
 
@@ -95,7 +101,7 @@ def login_user():
         )
 
 
-@auth_blueprint.route("/refresh", methods=["POST"])
+@auth_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh_token():
     current_user = get_jwt_identity()
@@ -103,6 +109,31 @@ def refresh_token():
     return make_response(jsonify({"access_token": new_access_token}), 200)
 
 
-@auth_blueprint.route("/logout")
+@auth_bp.route("/logout")
 def logout_user():
     pass
+
+
+@auth_bp.errorhandler(400)
+def bad_request_handler(e):
+    return handle_bad_request(e)
+
+
+@auth_bp.errorhandler(403)
+def forbidden_handler(e):
+    return handle_forbidden(e)
+
+
+@auth_bp.errorhandler(404)
+def not_found_handler(e):
+    return handle_not_found(e)
+
+
+@auth_bp.errorhandler(405)
+def method_not_allowed_handler(e):
+    return handle_method_not_allowed(e)
+
+
+@auth_bp.errorhandler(500)
+def internal_server_error_handler(e):
+    return handle_internal_server_error(e)

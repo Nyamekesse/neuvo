@@ -3,7 +3,6 @@ from exts import db
 from uuid import uuid4
 import shortuuid
 from sqlalchemy.dialects.postgresql import UUID
-from image_utils import generate_default_image
 
 
 def gen_post_id():
@@ -16,7 +15,7 @@ class Users:
     username: String(20) unique=True nullable=False
     user_email: String(120) unique=True nullable=False
     password: String(60) nullable=False
-    avatar: String(120) nullable=True default='default.jpg'
+    profile_image: String(120) nullable=True default='default.jpg'
 """
 
 
@@ -26,9 +25,6 @@ class User(db.Model):
     username = db.Column(db.String(20), unique=True, nullable=False)
     user_email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    # profile_image = db.Column(
-    #     db.LargeBinary, nullable=False, default=generate_default_image
-    # )
     posts = db.relationship("Post", backref="author", lazy=True)
 
     def insert(self) -> None:
@@ -39,11 +35,11 @@ class User(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def update(self, username, user_email, password, avatar) -> None:
+    def update(self, username, user_email, password, profile_image) -> None:
         self.username = username
         self.user_email = user_email
         self.password = password
-        self.avatar = avatar
+        # self.profile_image = profile_image
         db.session.commit()
 
     def format(self):
@@ -52,13 +48,10 @@ class User(db.Model):
             "username": self.username,
             "user_email": self.user_email,
             "password": self.password,
-            # "profile_image": self.profile_image,
         }
 
     def __repr__(self):
-        return (
-            f"User('{self.id}', '{self.username}', '{self.password}', '{self.avatar}')"
-        )
+        return f"User('{self.id}', '{self.username}', '{self.password}', '{self.user_email}')"
 
 
 """
@@ -99,7 +92,6 @@ class Post(db.Model):
             "title": self.title,
             "date_posted": self.date_posted,
             "post_content": self.post_content,
-            "post_image": self.post_image,
             "user_id": self.user_id,
         }
 

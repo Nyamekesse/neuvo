@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 flask = "*"
-flask-restx = "*"
 flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
 python-decouple = "*"

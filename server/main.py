@@ -9,14 +9,16 @@ from routes.auth_namespace import auth_ns
 from routes.posts_namespace import post_ns
 from routes.users_namespace import user_ns
 from flask_cors import CORS
+from config import DevConfig
 
 
-def create_app(config):
+def create_app(config=DevConfig):
     app = Flask(__name__)
     CORS(app)
     app.config.from_object(config)
     db.init_app(app)
-    migrate = Migrate(app, db)
+    migrate = Migrate()
+    migrate.init_app(app, db)
     Bcrypt(app)
     JWTManager(app)
     api = Api(app, doc="/docs")

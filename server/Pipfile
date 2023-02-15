@@ -16,6 +16,9 @@ flask-migrate = "*"
 flask-bcrypt = "*"
 black = "*"
 flask-cors = "*"
+pillow = "*"
+numpy = "*"
+sqlalchemy = "==1.3.24"
 
 [dev-packages]
 

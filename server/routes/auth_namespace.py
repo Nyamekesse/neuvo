@@ -15,9 +15,10 @@ create_user_model_data = auth_ns.model(
     "Create New User",
     {
         "username": fields.String(),
-        "user_email": fields.String(),
+        "email": fields.String(),
         "password": fields.String(),
-        "avatar": fields.String(),
+        "confirmPassword": fields.String(),
+        # "avatar": fields.String(),
     },
 )
 login_user_model = auth_ns.model(
@@ -35,28 +36,33 @@ class SignUp(Resource):
     def post(self):
         """create a new user"""
         data = request.get_json()
+        print(data)
         if not data:
             abort(400)
         try:
-            check_user = User.query.filter_by(username=data.get("username")).first()
+            username = data.get("username")
+            user_email = data.get("email")
+            password = data.get("password")
+            confirm_password = data.get("confirmPassword")
+            check_user = User.query.filter_by(username=username).first()
             if check_user is not None:
+                print("hi")
                 return jsonify(
                     {
                         "success": False,
                         "message": f"User with username {check_user.username.format()} already exist",
                     }
                 )
-
             else:
+                print("fccccccccccccccc")
                 new_user = User(
-                    username=data.get("username"),
-                    user_email=data.get("email"),
-                    password=generate_password_hash(data.get("password")).decode(
-                        "utf-8"
-                    ),
-                    avatar=data.get("avatar"),
+                    username=username,
+                    user_email=user_email,
+                    password=generate_password_hash(password).decode("utf-8"),
+                    profile_image="",
                 )
                 new_user.insert()
+                print("ppppppppppppppppp")
                 return jsonify(
                     {
                         "success": True,
@@ -64,6 +70,12 @@ class SignUp(Resource):
                         "new_user": new_user.username.format(),
                     }
                 )
+
+            # else:
+            #     return make_response(
+            #         jsonify({"success": False, "message": "Password must match"}),
+            #         400,
+            #     )
         except:
             abort(400)
 
@@ -73,18 +85,26 @@ class Login(Resource):
     @auth_ns.expect(login_user_model)
     def post(self):
         data = request.get_json()
-        username = data.get("username")
+
+        username_or_email = data.get("usernameOrEmail")
         password = data.get("password")
 
-        check_user = User.query.filter_by(username=username).first()
+        check_user = User.query.filter_by(username=username_or_email).first()
 
         if check_user and check_password_hash(check_user.password, password):
-            access_token = create_access_token(identity=check_user.username)
-            refresh_token = create_refresh_token(identity=check_user.username)
+            profile = {
+                "id": str(check_user.id),
+                "username": check_user.username.format(),
+                "user_email": check_user.user_email.format(),
+                "avatar": check_user.avatar.format(),
+            }
+            access_token = create_access_token(identity=profile)
+            refresh_token = create_refresh_token(identity=profile)
 
             return jsonify(
                 {
                     "success": True,
+                    "message": f"Login successful, welcome {check_user.username.format()}",
                     "access_token": access_token,
                     "refresh_token": refresh_token,
                 }

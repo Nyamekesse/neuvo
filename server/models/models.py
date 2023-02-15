@@ -3,6 +3,7 @@ from exts import db
 from uuid import uuid4
 import shortuuid
 from sqlalchemy.dialects.postgresql import UUID
+from image_utils import generate_default_image
 
 
 def gen_post_id():
@@ -23,9 +24,11 @@ class User(db.Model):
     __tablename__ = "users"
     id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid4)
     username = db.Column(db.String(20), unique=True, nullable=False)
-    user_email = db.Column(db.String(120), nullable=False)
+    user_email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    avatar = db.Column(db.String(30), nullable=False, default="default.jpg")
+    # profile_image = db.Column(
+    #     db.LargeBinary, nullable=False, default=generate_default_image
+    # )
     posts = db.relationship("Post", backref="author", lazy=True)
 
     def insert(self) -> None:
@@ -49,7 +52,7 @@ class User(db.Model):
             "username": self.username,
             "user_email": self.user_email,
             "password": self.password,
-            "avatar": self.avatar,
+            # "profile_image": self.profile_image,
         }
 
     def __repr__(self):
@@ -74,6 +77,7 @@ class Post(db.Model):
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     post_content = db.Column(db.Text, nullable=False)
+    post_image = db.Column(db.LargeBinary, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
 
     def insert(self) -> None:
@@ -95,6 +99,7 @@ class Post(db.Model):
             "title": self.title,
             "date_posted": self.date_posted,
             "post_content": self.post_content,
+            "post_image": self.post_image,
             "user_id": self.user_id,
         }
 

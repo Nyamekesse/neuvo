@@ -26,20 +26,34 @@ def create_user():
     data = request.get_json()
 
     if not data:
-        abort(400)
+        abort(400, description="No data found")
     try:
         username = data.get("username")
         user_email = data.get("email")
         password = data.get("password")
         confirm_password = data.get("confirmPassword")
 
-        check_user = User.query.filter_by(username=username).first()
-        if check_user is not None:
-            return jsonify(
-                {
-                    "success": False,
-                    "message": f"User with username {check_user.username.format()} already exist",
-                }
+        check_username = User.query.filter_by(username=username).first()
+        check_user_email = User.query.filter_by(user_email=user_email).first()
+        if check_username is not None:
+            return make_response(
+                jsonify(
+                    {
+                        "success": False,
+                        "message": f"User with username {check_username.username.format()} already exist",
+                    }
+                ),
+                400,
+            )
+        elif check_user_email is not None:
+            return make_response(
+                jsonify(
+                    {
+                        "success": False,
+                        "message": f"The email specified {check_user_email.username.format()} already exist",
+                    }
+                ),
+                400,
             )
         else:
             if confirm_password == password:
@@ -49,13 +63,16 @@ def create_user():
                     password=generate_password_hash(password).decode("utf-8"),
                 )
                 new_user.insert()
-                return jsonify(
-                    {
-                        "success": True,
-                        "message": "User successfully created",
-                        "new_user_id": new_user.id.format(),
-                        "new_username": new_user.username.format(),
-                    }
+                return make_response(
+                    jsonify(
+                        {
+                            "success": True,
+                            "message": "User successfully created",
+                            "new_user_id": new_user.id.format(),
+                            "new_username": new_user.username.format(),
+                        }
+                    ),
+                    201,
                 )
 
             else:
@@ -70,33 +87,52 @@ def create_user():
 @auth_bp.route("/login", methods=["POST"])
 def login_user():
     data = request.get_json()
-
     username_or_email = data.get("usernameOrEmail")
     password = data.get("password")
 
-    check_user = User.query.filter_by(username=username_or_email).first()
-
-    if check_user and check_password_hash(check_user.password, password):
-        profile = {
-            "id": str(check_user.id),
-            "username": check_user.username.format(),
-            "user_email": check_user.user_email.format(),
-            "profile_image": check_user.profile_image.format(),
-        }
-        access_token = create_access_token(identity=profile)
-        refresh_token = create_refresh_token(identity=profile)
-
-        return jsonify(
-            {
-                "success": True,
-                "message": f"Login successful, welcome {check_user.username.format()}",
-                "access_token": access_token,
-                "refresh_token": refresh_token,
+    check_username = User.query.filter_by(username=username_or_email).first()
+    check_user_email = User.query.filter_by(user_email=username_or_email).first()
+    if check_username:
+        if check_password_hash(check_username.password, password):
+            profile = {
+                "id": str(check_username.id),
+                "username": check_username.username.format(),
+                "user_email": check_username.user_email.format(),
+                "profile_image": check_username.profile_image.format(),
             }
-        )
+            access_token = create_access_token(identity=profile)
+            refresh_token = create_refresh_token(identity=profile)
+            return jsonify(
+                {
+                    "success": True,
+                    "message": f"Login successful, welcome {check_username.username.format()}",
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                }
+            )
+    elif check_user_email:
+        if check_password_hash(check_user_email.password, password):
+            profile = {
+                "id": str(check_user_email.id),
+                "username": check_username.username.format(),
+                "user_email": check_username.user_email.format(),
+                "profile_image": check_username.profile_image.format(),
+            }
+            access_token = create_access_token(identity=profile)
+            refresh_token = create_refresh_token(identity=profile)
+            return jsonify(
+                {
+                    "success": True,
+                    "message": f"Login successful, welcome {check_user_email.username.format()}",
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                }
+            )
     else:
         return make_response(
-            jsonify({"success": False, "message": "Incorrect username or password"}),
+            jsonify(
+                {"success": False, "message": "Incorrect username/email or password"}
+            ),
             200,
         )
 

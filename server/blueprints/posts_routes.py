@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify, abort
 
 from errors import (
     handle_bad_request,
+    handle_not_processable_error,
     handle_unauthorized,
     handle_forbidden,
     handle_not_found,
@@ -14,7 +15,9 @@ from errors import (
 )
 
 post_bp = Blueprint(
-    "posts", __name__, url_prefix="/posts", description="Blueprint for post"
+    "posts",
+    __name__,
+    url_prefix="/posts",
 )
 
 POSTS_PER_PAGE = 5
@@ -53,12 +56,14 @@ def fetch_all_posts():
 @jwt_required()
 def create_new_post():
     """create a new post"""
+    data = request.get_json()
+    if data is None:
+        abort(422)
     try:
-        data = request.get_json()
         new_post = Post(
-            title=data.get("title"),
-            post_content=data.get("post_content"),
-            user_id=data.get("user_id"),
+            title=data.get("title").strip(),
+            post_content=data.get("post_content").strip(),
+            user_id=data.get("user_id").strip(),
         )
         new_post.insert()
         return (
@@ -74,42 +79,45 @@ def create_new_post():
         abort(401)
 
 
-@post_bp.route("/post-details", methods=["GET"])
-def fetch_post_details():
+@post_bp.route("/post-details/<id>", methods=["GET"])
+def fetch_post_details(id):
     """get a specific post"""
-    try:
-        id = request.args.get("id", type=str)
-        single_post = Post.query.get_or_404(id)
-
-        return jsonify({"success": True, "post": single_post.format()})
-
-    except:
-        abort(404)
+    if id is None:
+        abort(422)
+    single_post = Post.query.get_or_404(id)
+    return jsonify({"success": True, "post": single_post.format()})
 
 
-@post_bp.route("/post", methods=["PUT"])
+@post_bp.route("/post/<id>", methods=["PUT"])
 @jwt_required()
 def update_post():
     """update a specific post"""
-    id = request.args.get("id", type=str)
     data = request.get_json()
-    post_to_update = Post.query.get_or_404(id)
-    post_to_update.update(data.get("title"), data.get("post_content"))
+    if not data or not id:
+        abort(422)
+    post_to_update = Post.query.get_or_404(str(id).strip())
+    try:
+        post_to_update.update(data.get("title"), data.get("post_content"))
+        return jsonify({"success": True, "updated_post": post_to_update.format()})
+    except Exception as e:
+        print(e)
+        abort(500)
 
-    return jsonify({"success": True, "updated_post": post_to_update.format()})
 
-
-@post_bp.route("/post", methods=["DELETE"])
+@post_bp.route("/post/<id>", methods=["DELETE"])
 @jwt_required()
 def delete():
     """delete a specific post"""
+    post_to_delete = Post.query.get_or_404(str(id).strip())
     try:
-        id = request.args.get("id", type=str)
-        post_to_delete = Post.query.get_or_404(id)
         post_to_delete.delete()
-        return (jsonify({"success": True, "deleted_post": post_to_delete.format()}),)
-    except:
-        abort(404)
+        return (
+            jsonify({"success": True, "deleted_post": post_to_delete.format()}),
+            200,
+        )
+    except Exception as e:
+        print(e)
+        abort(500)
 
 
 @post_bp.errorhandler(400)
@@ -135,6 +143,11 @@ def not_found_handler(e):
 @post_bp.errorhandler(405)
 def method_not_allowed_handler(e):
     return handle_method_not_allowed(e)
+
+
+@post_bp.errorhandler(422)
+def not_processable_error_handler(e):
+    return handle_not_processable_error(e)
 
 
 @post_bp.errorhandler(500)

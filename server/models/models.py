@@ -35,23 +35,26 @@ class User(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def update(self, username, user_email, password, profile_image) -> None:
-        self.username = username
-        self.user_email = user_email
-        self.password = password
-        # self.profile_image = profile_image
+    def update(self, username=None, user_email=None, password=None) -> None:
+        if username:
+            self.username = username.strip()
+        if user_email:
+            self.user_email = user_email.strip()
+        if password:
+            self.password = password
+
         db.session.commit()
 
     def format(self):
         return {
-            "id": self.id,
+            "id": str(self.id),
             "username": self.username,
             "user_email": self.user_email,
             "password": self.password,
         }
 
     def __repr__(self):
-        return f"User('{self.id}', '{self.username}', '{self.password}', '{self.user_email}')"
+        return f"User('{str(self.id)}', '{self.username}', '{self.password}', '{self.user_email}')"
 
 
 """
@@ -70,7 +73,6 @@ class Post(db.Model):
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     post_content = db.Column(db.Text, nullable=False)
-    post_image = db.Column(db.LargeBinary, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
 
     def insert(self) -> None:
@@ -81,14 +83,16 @@ class Post(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def update(self, title, post_content) -> None:
-        self.title = title
-        self.post_content = post_content
+    def update(self, title=None, post_content=None) -> None:
+        if title:
+            self.title = title.strip()
+        if post_content:
+            self.post_content = post_content.strip()
         db.session.commit()
 
     def format(self):
         return {
-            "id": self.id,
+            "id": str(self.id),
             "title": self.title,
             "date_posted": self.date_posted,
             "post_content": self.post_content,
@@ -96,4 +100,4 @@ class Post(db.Model):
         }
 
     def __repr__(self):
-        return f"Post('{self.id}', '{self.title}', '{self.date_posted}', '{self.post_content}')"
+        return f"Post('{str(self.id)}', '{self.title}', '{self.date_posted}', '{self.post_content}')"

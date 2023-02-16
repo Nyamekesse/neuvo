@@ -21,5 +21,9 @@ def handle_method_not_allowed(e):
     return make_response(jsonify({"message": "Method not allowed"}), 405)
 
 
+def handle_not_processable_error(e):
+    return make_response(jsonify({"message": "Not Processable"}), 422)
+
+
 def handle_internal_server_error(e):
     return make_response(jsonify({"message": "Internal server error"}), 500)

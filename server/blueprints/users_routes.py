@@ -1,7 +1,7 @@
 from flask_jwt_extended import jwt_required
 from models.models import User
-from flask import Blueprint, request
-
+from flask import Blueprint, request, make_response, jsonify, abort
+from flask_bcrypt import generate_password_hash
 from errors import (
     handle_bad_request,
     handle_unauthorized,
@@ -12,47 +12,81 @@ from errors import (
 )
 
 users_bp = Blueprint(
-    "users", __name__, url_prefix="/users", description="Blueprint for users"
+    "users",
+    __name__,
+    url_prefix="/users",
 )
 
 
-@users_bp.route("/")
-def get():
+@users_bp.route("/", methods=["GET"])
+def fetch_all_users():
     """get all users from database"""
-    users = User.query.order_by(User.username).all()
-    return users, 200
+    try:
+        users = User.query.order_by(User.username).all()
+        users = [
+            {
+                "id": user.id,
+                "username": user.username.format(),
+                "user_email": user.user_email.format(),
+            }
+            for user in users
+        ]
+        return make_response(jsonify({"users": users, "total_users": len(users)}), 200)
+    except Exception as e:
+        print(e)
+        abort(500)
 
 
-@users_bp.route("/<id>")
+@users_bp.route("/user/<id>", methods=["GET"])
 @jwt_required()
-def get(id):
+def fetch_specific_user(id):
     """get specific user from database"""
-    user = User.query.get_or_404(id)
-    return user, 200
+    user = User.query.get_or_404(str(id).strip())
+    try:
+        user = user.format()
+        return make_response(jsonify({"user": user}), 200)
+    except Exception as e:
+        print(e)
+        abort(500)
 
 
-@users_bp.route("/user/<id>")
+@users_bp.route("/user/<id>", methods=["PUT"])
 @jwt_required()
-def put(id):
+def update_specific_user(id):
     """update user details in database"""
     data = request.get_json()
-    user_to_be_updated = User.query.get_or_404(id)
-    user_to_be_updated.update(
-        data.get("username"),
-        data.get("user_email"),
-        data.get("password"),
-        data.get("profile_image"),
-    )
-    return user_to_be_updated, 200
+    user_to_be_updated = User.query.get_or_404(str(id).strip())
+    try:
+        new_username = data.get("username")
+        new_user_email = data.get("userEmail")
+        new_password = (
+            generate_password_hash(data.get("password").strip()).decode("utf-8")
+            if data.get("password")
+            else None
+        )
+
+        user_to_be_updated.update(new_username, new_user_email, new_password)
+        return make_response(
+            jsonify({"success": True, "updated_user": user_to_be_updated.format()}), 200
+        )
+    except Exception as e:
+        print(e)
+        abort(500)
 
 
-@users_bp.route("/user/<id>")
+@users_bp.route("/user/<id>", methods=["DELETE"])
 @jwt_required()
-def delete(id):
+def delete_user(id):
     """delete a user from the database"""
-    user_to_be_deleted = User.query.get_or_404(id)
-    user_to_be_deleted.delete()
-    return user_to_be_deleted, 200
+    user_to_be_deleted = User.query.get_or_404(str(id).strip())
+    try:
+        user_to_be_deleted.delete()
+        return make_response(
+            jsonify({"success": True, "message": "User deleted successfully"}), 200
+        )
+    except Exception as e:
+        print(e)
+        abort(500)
 
 
 @users_bp.errorhandler(400)

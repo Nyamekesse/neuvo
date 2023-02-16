@@ -13,49 +13,60 @@ from errors import (
     handle_not_found,
     handle_method_not_allowed,
     handle_internal_server_error,
+    handle_not_processable_error,
 )
 
 auth_bp = Blueprint(
-    "auth", __name__, url_prefix="/auth", description="Blueprint for authentication"
+    "auth",
+    __name__,
+    url_prefix="/auth",
 )
+
+
+def is_username_or_email_taken(username, email):
+    # Query the database to check if a user with the given username or email already exists
+    user = User.query.filter(
+        (User.username == username) | (User.user_email == email)
+    ).first()
+
+    # Return True if a user with the given username or email exists, False otherwise
+    return user is not None
 
 
 @auth_bp.route("/signup", methods=["POST"])
 def create_user():
     """create a new user"""
     data = request.get_json()
-
     if not data:
         abort(400, description="No data found")
-    try:
-        username = data.get("username")
-        user_email = data.get("email")
-        password = data.get("password")
-        confirm_password = data.get("confirmPassword")
+    else:
+        try:
+            username = data.get("username").strip()
+            user_email = data.get("email").strip()
+            password = data.get("password").strip()
+            confirm_password = data.get("confirmPassword").strip()
 
-        check_username = User.query.filter_by(username=username).first()
-        check_user_email = User.query.filter_by(user_email=user_email).first()
-        if check_username is not None:
-            return make_response(
-                jsonify(
-                    {
-                        "success": False,
-                        "message": f"User with username {check_username.username.format()} already exist",
-                    }
-                ),
-                400,
-            )
-        elif check_user_email is not None:
-            return make_response(
-                jsonify(
-                    {
-                        "success": False,
-                        "message": f"The email specified {check_user_email.username.format()} already exist",
-                    }
-                ),
-                400,
-            )
-        else:
+            if is_username_or_email_taken(username, user_email):
+                return make_response(
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": "Username or email already taken",
+                        }
+                    ),
+                    400,
+                )
+
+                return make_response(
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": f"The email specified {check_user_by_email.username.format()} already exist",
+                        }
+                    ),
+                    400,
+                )
+
             if confirm_password == password:
                 new_user = User(
                     username=username,
@@ -68,73 +79,69 @@ def create_user():
                         {
                             "success": True,
                             "message": "User successfully created",
-                            "new_user_id": new_user.id.format(),
+                            "new_user_id": new_user.id,
                             "new_username": new_user.username.format(),
                         }
                     ),
                     201,
                 )
 
-            else:
-                return make_response(
-                    jsonify({"success": False, "message": "Password must match"}),
-                    400,
-                )
-    except:
-        abort(400)
+            return make_response(
+                jsonify({"success": False, "message": "Password must match"}),
+                400,
+            )
+        except Exception as e:
+            print(e)
+            abort(500)
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login_user():
     data = request.get_json()
-    username_or_email = data.get("usernameOrEmail")
-    password = data.get("password")
+    if data is None:
+        abort(422)
+    try:
+        username_or_email = data.get("usernameOrEmail").strip()
+        password = data.get("password").strip()
 
-    check_username = User.query.filter_by(username=username_or_email).first()
-    check_user_email = User.query.filter_by(user_email=username_or_email).first()
-    if check_username:
-        if check_password_hash(check_username.password, password):
+        check_by_username_or_email = User.query.filter(
+            (User.user_email == username_or_email)
+            | (User.username == username_or_email)
+        ).one()
+
+        if check_by_username_or_email and check_password_hash(
+            check_by_username_or_email.password, password
+        ):
             profile = {
-                "id": str(check_username.id),
-                "username": check_username.username.format(),
-                "user_email": check_username.user_email.format(),
-                "profile_image": check_username.profile_image.format(),
+                "id": check_by_username_or_email.id,
+                "username": check_by_username_or_email.username.format(),
+                "user_email": check_by_username_or_email.user_email.format(),
             }
+            print(profile)
             access_token = create_access_token(identity=profile)
             refresh_token = create_refresh_token(identity=profile)
             return jsonify(
                 {
                     "success": True,
-                    "message": f"Login successful, welcome {check_username.username.format()}",
+                    "message": f"Login successful, welcome {check_by_username_or_email.username.format()}",
                     "access_token": access_token,
                     "refresh_token": refresh_token,
                 }
             )
-    elif check_user_email:
-        if check_password_hash(check_user_email.password, password):
-            profile = {
-                "id": str(check_user_email.id),
-                "username": check_username.username.format(),
-                "user_email": check_username.user_email.format(),
-                "profile_image": check_username.profile_image.format(),
-            }
-            access_token = create_access_token(identity=profile)
-            refresh_token = create_refresh_token(identity=profile)
-            return jsonify(
-                {
-                    "success": True,
-                    "message": f"Login successful, welcome {check_user_email.username.format()}",
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                }
+
+        else:
+            return make_response(
+                jsonify(
+                    {
+                        "success": False,
+                        "message": "Incorrect username/email or password",
+                    }
+                ),
+                404,
             )
-    else:
-        return make_response(
-            jsonify(
-                {"success": False, "message": "Incorrect username/email or password"}
-            ),
-            200,
-        )
+    except Exception as e:
+        print(e)
+        abort(500)
 
 
 @auth_bp.route("/refresh", methods=["POST"])
@@ -173,3 +180,8 @@ def method_not_allowed_handler(e):
 @auth_bp.errorhandler(500)
 def internal_server_error_handler(e):
     return handle_internal_server_error(e)
+
+
+@auth_bp.errorhandler(422)
+def not_processable_error_handler(e):
+    return handle_not_processable_error(e)

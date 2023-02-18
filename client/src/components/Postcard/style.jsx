@@ -8,6 +8,7 @@ export const Wrap = styled(Box)(({ theme }) => ({
   alignItems: "flex-start",
   justifyContent: "space-between",
   marginBottom: "3%",
+  cursor: "pointer",
 }));
 
 export const PostImage = styled(Box)(({ theme }) => ({

@@ -1,5 +1,5 @@
 import SecureLS from "secure-ls";
-
+import jwt_decode from "jwt-decode";
 export const passwdRegExp =
   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
 
@@ -16,16 +16,23 @@ export const initialLogInValues = {
   password: "",
 };
 
-const secureStore = new SecureLS({ encodingType: "aes", isCompression: true });
-export const localStorageSet = (key, data) => {
-  return secureStore.set(key, data);
+export const secureStore = new SecureLS({
+  encodingType: "aes",
+  isCompression: true,
+});
+export const secureStorageSetToken = (key, data) => {
+  return data ? secureStore.set(key, data) : false;
 };
 
-export const localStorageGet = (key) => {
+export const secureStorageGetToken = (key) => {
   const data = secureStore.get(key);
   return data ? data : false;
 };
 
-export const localStorageRemove = (key) => {
+export const secureStorageRemoveToken = (key) => {
   secureStore.remove(key);
+};
+
+export const decodeJWT = (token) => {
+  return token ? jwt_decode(token) : null;
 };

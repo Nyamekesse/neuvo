@@ -8,6 +8,8 @@ import { persistReducer } from "redux-persist";
 const persistConfig = {
   key: "root",
   storage,
+  version: 1,
+  blacklist: ["authentication", "alert"],
 };
 
 const reducer = combineReducers({
@@ -19,6 +21,12 @@ const reducer = combineReducers({
 const persistedReducer = persistReducer(persistConfig, reducer);
 const store = configureStore({
   reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["persist/PERSIST"],
+      },
+    }),
 });
 
 export default store;

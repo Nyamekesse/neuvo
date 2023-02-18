@@ -1,8 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { createUser, loginUser } from "../../api";
 import { displayAlert } from "../alerts/alertSlice";
-import { ACCESS_TOKEN, ERROR, REFRESH_TOKEN, SUCCESS } from "../../constants";
-import { localStorageSet } from "../../utils";
+import { PROFILE, ERROR, REFRESH_TOKEN, SUCCESS } from "../../constants";
+import {
+  secureStorageRemoveToken,
+  secureStorageSetToken,
+  secureStore,
+} from "../../utils";
 export const signup = createAsyncThunk(
   "authentication/signup",
   async (data, thunkAPI) => {
@@ -40,8 +44,7 @@ export const login = createAsyncThunk(
           thunkAPI.dispatch(
             displayAlert({ text: data.message, severity: SUCCESS })
           );
-          console.log(data);
-          // localStorage.setItem("profile", JSON.stringify({ ...data?.profile }));
+
           return data;
         } else {
           thunkAPI.dispatch(
@@ -58,7 +61,6 @@ export const login = createAsyncThunk(
 
 const initialAuthState = {
   isLoading: false,
-  profile: {},
   isLoggedIn: false,
   success: false,
 };
@@ -67,6 +69,9 @@ const authenticationSlice = createSlice({
   initialState: initialAuthState,
   reducers: {
     logout: () => {
+      secureStorageRemoveToken(PROFILE);
+      secureStorageRemoveToken(REFRESH_TOKEN);
+      secureStore.clear();
       return initialAuthState;
     },
   },
@@ -86,11 +91,10 @@ const authenticationSlice = createSlice({
     });
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      state.profile = payload?.profile;
       state.success = payload?.success;
       state.isLoggedIn = true;
-      localStorageSet(ACCESS_TOKEN, payload?.access_token);
-      localStorageSet(REFRESH_TOKEN, payload?.refresh_token);
+      secureStorageSetToken(PROFILE, payload?.access_token);
+      secureStorageSetToken(REFRESH_TOKEN, payload?.refresh_token);
     });
     builder.addCase(login.rejected, (state) => {
       state.isLoading = false;

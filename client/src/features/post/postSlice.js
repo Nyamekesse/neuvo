@@ -1,22 +1,61 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchPost } from "../../api";
+import { fetchPost, fetchSinglePostDetails } from "../../api";
+import { ERROR } from "../../constants";
+import { displayAlert } from "../alerts/alertSlice";
 
 const initialPostState = {
   isLoading: true,
   posts: [],
+  singlePost: {},
   numberOfPages: 1,
   currentPage: 1,
-  error: "",
 };
 
 export const getAllPosts = createAsyncThunk(
   "post/getAllPosts",
-  async (page) => {
+  async (page, thunkAPI) => {
     try {
-      const { data } = await fetchPost(page);
-      return data;
+      const res = await fetchPost(page);
+      if (res.status === 200 && res.statusText === "OK") {
+        const { data } = res;
+
+        if (data.success) {
+          return data;
+        } else {
+          thunkAPI.dispatch(
+            displayAlert({
+              text: "Something went wrong while fetching posts, please try again later",
+              severity: ERROR,
+            })
+          );
+        }
+      }
     } catch (error) {
-      console.log(error.message);
+      thunkAPI.dispatch(displayAlert({ text: error.message, severity: ERROR }));
+      return error.message;
+    }
+  }
+);
+
+export const getSinglePostDetails = createAsyncThunk(
+  "post/getSinglePost",
+  async (postId) => {
+    try {
+      const res = await fetchSinglePostDetails(postId);
+      if (res.status === 200 && res.statusText === "OK") {
+        const { data } = res;
+        if (data.success) return data.post;
+
+        thunkAPI.dispatch(
+          displayAlert({
+            text: "Something went wrong while fetching posts, please try again later",
+            severity: ERROR,
+          })
+        );
+      }
+    } catch (error) {
+      thunkAPI.dispatch(displayAlert({ text: error.message, severity: ERROR }));
+      return error.message;
     }
   }
 );
@@ -36,18 +75,27 @@ const postSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getAllPosts.pending, (state, action) => {
+    builder.addCase(getAllPosts.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(getAllPosts.fulfilled, (state, action) => {
+    builder.addCase(getAllPosts.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      state.posts = action.payload.results;
-      state.currentPage = action.payload.current_page;
-      state.numberOfPages = action.payload.number_of_pages;
+      state.posts = payload.results;
+      state.currentPage = payload.current_page;
+      state.numberOfPages = payload.number_of_pages;
     });
-    builder.addCase(getAllPosts.rejected, (state, action) => {
+    builder.addCase(getAllPosts.rejected, (state) => {
       state.isLoading = false;
-      state.error = error.message;
+    });
+    builder.addCase(getSinglePostDetails.pending, (state, action) => {
+      state.isLoading = true;
+    });
+    builder.addCase(getSinglePostDetails.fulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      state.singlePost = payload;
+    });
+    builder.addCase(getSinglePostDetails.rejected, (state) => {
+      state.isLoading = false;
     });
   },
 });

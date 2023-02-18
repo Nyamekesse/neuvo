@@ -5,11 +5,15 @@ import Views from "./views/Views";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import CustomAlert from "./components/Alert";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { logout } from "./features/auth/authenticationSlice";
-import { useDispatch } from "react-redux";
-import { localStorageGet, localStorageRemove } from "./utils";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  decodeJWT,
+  secureStorageRemoveToken,
+  secureStorageGetToken,
+} from "./utils";
+import { PROFILE, REFRESH_TOKEN } from "./constants";
 const AppContainer = styled(Box)({
   display: "flex",
   flexDirection: "column",
@@ -21,15 +25,14 @@ const AppContainer = styled(Box)({
 
 function App() {
   let currentUrl = useLocation();
+  const { isLoggedIn } = useSelector((store) => store.authentication);
   const exceptPath = ["/log-in", "/sign-up", "/page-not-found"];
   const dispatch = useDispatch();
-  useEffect(() => {
-    // dispatch(logout());
-    // localStorageRemove(ACCESS_TOKEN);
-    // localStorageRemove(REFRESH_TOKEN);
-    // console.log(localStorageGet(ACCESS_TOKEN));
-    // console.log(localStorageGet(REFRESH_TOKEN));
-  }, []);
+
+  // useEffect(() => {
+  //   dispatch(logout());
+  // });
+
   return (
     <>
       {!exceptPath.includes(currentUrl.pathname) && <Header />}

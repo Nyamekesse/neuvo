@@ -16,7 +16,7 @@ import profile1 from "../../assets/profile-1.jpg";
 import profile2 from "../../assets/profile-2.jpg";
 import profile3 from "../../assets/profile-3.jpg";
 import { SimilarPost } from "../../components";
-const PostDetail = () => {
+const PostDetail = ({ post }) => {
   return (
     <Wrap>
       <Post component={"section"}>
@@ -28,7 +28,17 @@ const PostDetail = () => {
           align="center"
           mb={1}
         >
-          How to be more productive
+          {post.title}
+        </Typography>
+        <Typography
+          variant="caption"
+          color={"#111"}
+          component={"p"}
+          fontSize={13}
+          fontWeight={400}
+          mb={1}
+        >
+          by: <b>{post.author_name}</b>
         </Typography>
         <Typography
           variant="caption"
@@ -38,10 +48,10 @@ const PostDetail = () => {
           fontWeight={400}
           mb={1}
         >
-          19 May 2021
+          {post.date_posted}
         </Typography>
         <Image>
-          <img src={image} alt={image} />
+          <img src={post.post_image} alt={image} />
         </Image>
         <Typography
           variant="subtitle1"
@@ -51,44 +61,7 @@ const PostDetail = () => {
           mt={4}
           mb={2}
         >
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium
-          et illum hic exercitationem nobis dolore saepe consequuntur, vel
-          laborum dolorem sit. Velit quidem aut numquam sit fugit quia quo
-          doloribus! dolorem sit. Velit quidem aut numquam sit fugit quia quo
-          doloribus! doloribus!dolorem sit. Velit quidem aut numquam sit fugit.
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Velit harum
-          fuga quibusdam est, consectetur distinctio nesciunt. Earum quisquam
-          incidunt illum ullam nesciunt deserunt a obcaecati molestias, quod
-          esse? Magnam, atque. Lorem ipsum dolor sit amet consectetur
-          adipisicing elit. Enim voluptas harum nemo adipisci culpa nam fugiat
-          eos, ad eum accusamus eligendi illum exercitationem natus similique
-          magni libero. Sapiente, commodi sed? Lorem ipsum dolor sit, amet
-          consectetur adipisicing elit. Earum dolorem cum consectetur minus sed.
-          Voluptates nobis impedit perferendis amet, vero omnis numquam nesciunt
-          similique asperiores quia. Vitae aliquam recusandae exercitationem.
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolore,
-          maiores!
-          <br />
-          <br />
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Vitae sunt
-          odit unde adipisci, maiores aperiam a dolor facilis officia
-          blanditiis! Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-          Voluptatum deserunt sit officiis eius architecto unde est veniam, quae
-          possimus culpa dolor nobis fugiat alias odit repellendus laboriosam
-          accusamus consequatur deleniti enim quod ex. Rem fuga praesentium
-          error at veniam. Tenetur iusto, suscipit nostrum sint minus labore
-          optio deleniti vel ipsa. Lorem ipsum dolor sit amet consectetur
-          adipisicing elit. Enim numquam quaerat itaque rerum unde pariatur
-          distinctio, perspiciatis aperiam doloremque velit vel quas, fuga
-          nostrum quia sed aliquam porro commodi consequuntur laborum! Ipsam
-          pariatur, libero delectus aut ratione quibusdam suscipit. Iusto eos
-          hic temporibus veritatis aperiam adipisci impedit doloremque minus
-          quaerat dicta. Ut quasi facilis odit debitis ab quia officia deserunt
-          blanditiis veniam, magni ipsam provident nostrum? Eum error in, ipsa
-          ea laudantium voluptates quaerat eligendi cupiditate earum,
-          repudiandae expedita facilis eius ullam, animi odio tenetur labore
-          nobis magni. Ab voluptates commodi hic at iste sequi officiis maiores.
-          Quod, harum consequatur!
+          {post.post_content}
         </Typography>
       </Post>
       <CommentSection component={"section"}>

@@ -14,7 +14,6 @@ const Feeds = () => {
   const { posts, isLoading, numberOfPages } = useSelector(
     (state) => state.post
   );
-
   const dispatch = useDispatch(page);
   useEffect(() => {
     dispatch(getAllPosts());
@@ -30,7 +29,7 @@ const Feeds = () => {
         posts.map((post) => {
           return (
             <div key={post.id}>
-              <Postcard />
+              <Postcard {...post} />
             </div>
           );
         })

@@ -1,10 +1,7 @@
 from flask import Blueprint, request, jsonify, abort, make_response
 
 
-default_bp = Blueprint(
-    "default",
-    __name__,
-)
+default_bp = Blueprint("default", __name__, url_prefix="/api")
 
 
 @default_bp.route("/hello", methods=["GET"])

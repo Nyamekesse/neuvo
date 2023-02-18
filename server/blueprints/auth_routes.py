@@ -45,7 +45,9 @@ def create_user():
             user_email = data.get("email").strip()
             password = data.get("password").strip()
             confirm_password = data.get("confirmPassword").strip()
+            display_picture = data.get("displayPicture").strip()
 
+            default = "https://www.dovercourt.org/wp-content/uploads/2019/11/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.jpg"
             if is_username_or_email_taken(username, user_email):
                 return make_response(
                     jsonify(
@@ -70,6 +72,9 @@ def create_user():
             if confirm_password == password:
                 new_user = User(
                     username=username,
+                    display_picture=default
+                    if len(display_picture) <= 0
+                    else display_picture,
                     user_email=user_email,
                     password=generate_password_hash(password).decode("utf-8"),
                 )
@@ -79,7 +84,7 @@ def create_user():
                         {
                             "success": True,
                             "message": "User successfully created",
-                            "new_user_id": new_user.id,
+                            "new_author_id": new_user.id,
                             "new_username": new_user.username.format(),
                         }
                     ),
@@ -117,7 +122,7 @@ def login_user():
                 "username": check_by_username_or_email.username.format(),
                 "user_email": check_by_username_or_email.user_email.format(),
             }
-            print(profile)
+
             access_token = create_access_token(identity=profile)
             refresh_token = create_refresh_token(identity=profile)
             return jsonify(

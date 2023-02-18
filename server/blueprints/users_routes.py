@@ -27,6 +27,7 @@ def fetch_all_users():
             {
                 "id": user.id,
                 "username": user.username.format(),
+                "display_picture": user.display_picture.format(),
                 "user_email": user.user_email.format(),
             }
             for user in users
@@ -59,13 +60,16 @@ def update_specific_user(id):
     try:
         new_username = data.get("username")
         new_user_email = data.get("userEmail")
+        new_display_picture = data.get("displayPicture")
         new_password = (
             generate_password_hash(data.get("password").strip()).decode("utf-8")
             if data.get("password")
             else None
         )
 
-        user_to_be_updated.update(new_username, new_user_email, new_password)
+        user_to_be_updated.update(
+            new_username, new_display_picture, new_user_email, new_password
+        )
         return make_response(
             jsonify({"success": True, "updated_user": user_to_be_updated.format()}), 200
         )

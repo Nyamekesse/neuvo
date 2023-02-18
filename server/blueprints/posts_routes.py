@@ -2,7 +2,7 @@ import math
 
 from models.models import Post
 from flask_jwt_extended import jwt_required
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify, abort, make_response
 
 from errors import (
     handle_bad_request,
@@ -34,8 +34,18 @@ def paginate_display(page, queried_posts):
 @post_bp.route("/", methods=["GET"])
 def fetch_all_posts():
     """get all posts from database"""
+    posts = Post.query.order_by(Post.date_posted).all()
+    if len(posts) <= 0:
+        return make_response(
+            jsonify(
+                {
+                    "success": False,
+                    "message": "There are currently no posts at the moment",
+                }
+            ),
+            404,
+        )
     try:
-        posts = Post.query.order_by(Post.title).all()
         number_of_all_posts = len(posts)
         page = request.args.get("page", 1, type=int)
         posts = paginate_display(page, posts)
@@ -48,22 +58,34 @@ def fetch_all_posts():
             }
         )
 
-    except:
-        abort(400)
+    except Exception as e:
+        print(e)
+        abort(500)
 
 
 @post_bp.route("/new-post", methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def create_new_post():
     """create a new post"""
     data = request.get_json()
     if data is None:
         abort(422)
+    elif (
+        data.get("title") is None
+        or data.get("postContent") is None
+        or data.get("authorId") is None
+        or data.get("postImage") is None
+        or data.get("authorName") is None
+    ):
+        abort(422)
+
     try:
         new_post = Post(
             title=data.get("title").strip(),
-            post_content=data.get("post_content").strip(),
-            user_id=data.get("user_id").strip(),
+            post_content=data.get("postContent").strip(),
+            author_id=data.get("authorId").strip(),
+            post_image=data.get("postImage").strip(),
+            author_name=data.get("authorName").strip(),
         )
         new_post.insert()
         return (
@@ -73,10 +95,12 @@ def create_new_post():
                     "created_post": new_post.format(),
                 }
             ),
+            200,
         )
 
-    except:
-        abort(401)
+    except Exception as e:
+        print(e)
+        abort(500)
 
 
 @post_bp.route("/post-details/<id>", methods=["GET"])
@@ -84,20 +108,22 @@ def fetch_post_details(id):
     """get a specific post"""
     if id is None:
         abort(422)
-    single_post = Post.query.get_or_404(id)
+    single_post = Post.query.get_or_404(str(id).strip())
     return jsonify({"success": True, "post": single_post.format()})
 
 
 @post_bp.route("/post/<id>", methods=["PUT"])
-@jwt_required()
-def update_post():
+# @jwt_required()
+def update_post(id):
     """update a specific post"""
     data = request.get_json()
     if not data or not id:
         abort(422)
     post_to_update = Post.query.get_or_404(str(id).strip())
     try:
-        post_to_update.update(data.get("title"), data.get("post_content"))
+        post_to_update.update(
+            data.get("title"), data.get("postContent"), data.get("postImage")
+        )
         return jsonify({"success": True, "updated_post": post_to_update.format()})
     except Exception as e:
         print(e)
@@ -106,13 +132,13 @@ def update_post():
 
 @post_bp.route("/post/<id>", methods=["DELETE"])
 @jwt_required()
-def delete():
+def delete(id):
     """delete a specific post"""
     post_to_delete = Post.query.get_or_404(str(id).strip())
     try:
         post_to_delete.delete()
         return (
-            jsonify({"success": True, "deleted_post": post_to_delete.format()}),
+            jsonify({"success": True, "message": "post successfully deleted"}),
             200,
         )
     except Exception as e:

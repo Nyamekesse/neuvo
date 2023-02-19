@@ -16,6 +16,7 @@ import profile1 from "../../assets/profile-1.jpg";
 import profile2 from "../../assets/profile-2.jpg";
 import profile3 from "../../assets/profile-3.jpg";
 import { SimilarPost } from "../../components";
+import moment from "moment";
 const PostDetail = ({ post }) => {
   return (
     <Wrap>
@@ -48,7 +49,7 @@ const PostDetail = ({ post }) => {
           fontWeight={400}
           mb={1}
         >
-          {post.date_posted}
+          {moment(post.date_posted).fromNow()}
         </Typography>
         <Image>
           <img src={post.post_image} alt={image} />

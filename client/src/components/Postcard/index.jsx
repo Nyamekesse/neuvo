@@ -3,6 +3,7 @@ import { PostDetails, PostImage, Wrap } from "./style";
 import { Typography } from "@mui/material";
 import Image1 from "../../assets/pexels-sl-wong-947384.jpg";
 import { Link } from "react-router-dom";
+import moment from "moment";
 const Postcard = ({
   id,
   title,
@@ -46,7 +47,7 @@ const Postcard = ({
             fontWeight={400}
             mb={1}
           >
-            {date_posted}, {"8"} comments
+            {moment(date_posted).fromNow()}
           </Typography>
           <Typography
             variant="body2"

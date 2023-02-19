@@ -4,7 +4,7 @@ import { ERROR } from "../../constants";
 import { displayAlert } from "../alerts/alertSlice";
 
 const initialPostState = {
-  isLoading: true,
+  isLoading: false,
   posts: [],
   singlePost: {},
   numberOfPages: 1,
@@ -31,8 +31,17 @@ export const getAllPosts = createAsyncThunk(
         }
       }
     } catch (error) {
-      thunkAPI.dispatch(displayAlert({ text: error.message, severity: ERROR }));
-      return error.message;
+      thunkAPI.dispatch(
+        displayAlert({
+          text: error.response.data
+            ? error.response.data.message
+            : error.message,
+          severity: ERROR,
+        })
+      );
+      return rejectWithValue(
+        error.response.data ? error.response.data.message : error.message
+      );
     }
   }
 );
@@ -54,8 +63,17 @@ export const getSinglePostDetails = createAsyncThunk(
         );
       }
     } catch (error) {
-      thunkAPI.dispatch(displayAlert({ text: error.message, severity: ERROR }));
-      return error.message;
+      thunkAPI.dispatch(
+        displayAlert({
+          text: error.response.data
+            ? error.response.data.message
+            : error.message,
+          severity: ERROR,
+        })
+      );
+      return rejectWithValue(
+        error.response.data ? error.response.data.message : error.message
+      );
     }
   }
 );

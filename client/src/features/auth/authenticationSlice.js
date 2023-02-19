@@ -14,21 +14,24 @@ export const signup = createAsyncThunk(
       const res = await createUser(data);
       if (res.status === 201 && res.statusText === "CREATED") {
         const { data } = res;
-        if (data.success) {
+        if (data.success)
           thunkAPI.dispatch(
             displayAlert({ text: data.message, severity: SUCCESS })
           );
-
-          return data;
-        } else {
-          thunkAPI.dispatch(
-            displayAlert({ text: data.message, severity: ERROR })
-          );
-        }
+        return data;
       }
     } catch (error) {
-      thunkAPI.dispatch(displayAlert({ text: error.message, severity: ERROR }));
-      return error.message;
+      thunkAPI.dispatch(
+        displayAlert({
+          text: error.response.data
+            ? error.response.data.message
+            : error.message,
+          severity: ERROR,
+        })
+      );
+      return rejectWithValue(
+        error.response.data ? error.response.data.message : error.message
+      );
     }
   }
 );
@@ -40,20 +43,23 @@ export const login = createAsyncThunk(
       const res = await loginUser(data);
       if (res.status === 200 && res.statusText === "OK") {
         const { data } = res;
-        if (data.success) {
+        if (data.success)
           thunkAPI.dispatch(
             displayAlert({ text: data.message, severity: SUCCESS })
           );
-          return data;
-        }
-      } else if (res.status === 404 && res.statusText === "NOT FOUND") {
-        thunkAPI.dispatch(
-          displayAlert({ text: data.message, severity: ERROR })
-        );
+        return data;
       }
     } catch (error) {
       thunkAPI.dispatch(
-        displayAlert({ text: error.response?.data.message, severity: ERROR })
+        displayAlert({
+          text: error.response.data
+            ? error.response.data.message
+            : error.message,
+          severity: ERROR,
+        })
+      );
+      return rejectWithValue(
+        error.response.data ? error.response.data.message : error.message
       );
     }
   }
@@ -83,8 +89,8 @@ const authenticationSlice = createSlice({
       state.isLoading = false;
       state.success = payload?.success;
     });
-    builder.addCase(signup.rejected, (state) => {
-      state.isLoading = false;
+    builder.addCase(signup.rejected, () => {
+      return initialAuthState;
     });
     builder.addCase(login.pending, (state) => {
       state.isLoading = true;
@@ -92,12 +98,14 @@ const authenticationSlice = createSlice({
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.isLoading = false;
       state.success = payload?.success;
-      state.isLoggedIn = true;
-      secureStorageSetToken(PROFILE, payload?.access_token);
-      secureStorageSetToken(REFRESH_TOKEN, payload?.refresh_token);
+      if (state.success) {
+        state.isLoggedIn = true;
+        secureStorageSetToken(PROFILE, payload?.access_token);
+        secureStorageSetToken(REFRESH_TOKEN, payload?.refresh_token);
+      }
     });
-    builder.addCase(login.rejected, (state) => {
-      state.isLoading = false;
+    builder.addCase(login.rejected, () => {
+      return initialAuthState;
     });
   },
 });

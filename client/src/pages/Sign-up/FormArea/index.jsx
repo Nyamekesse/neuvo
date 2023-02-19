@@ -12,6 +12,7 @@ import { CheckBoxes, TextFields } from "../../../components";
 import { signUpUserSchema } from "../../../validation";
 import { initialSignUpValues } from "../../../utils";
 import { InputGroup } from "../../Log-in/FormArea/style";
+import { trim, normalizeEmail, escape } from "validator";
 const FormAreaSection = () => {
   const navigate = useNavigate();
 
@@ -30,9 +31,10 @@ const FormAreaSection = () => {
     isValid
       ? dispatch(
           signup({
-            username: data.username,
-            email: data.email,
-            password: data.password,
+            username: trim(escape(data.username)),
+            email: normalizeEmail(trim(escape(data.email))),
+            password: trim(escape(data.password)),
+            confirmPassword: trim(escape(data.confirmPassword)),
           })
         ) & reset()
       : null;

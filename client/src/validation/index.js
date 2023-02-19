@@ -1,5 +1,6 @@
 import * as yup from "yup";
 import { passwdRegExp } from "../utils";
+import validator from "validator";
 // creating new user schema for validation
 export const signUpUserSchema = yup.object({
   username: yup
@@ -32,3 +33,25 @@ export const loginInUserSchema = yup.object({
     .required("enter a username or an email address"),
   password: yup.string().required("kindly enter a password"),
 });
+
+const validatorSchema = {
+  name: {
+    in: ["body"],
+    isString: true,
+    trim: true,
+    escape: true,
+  },
+  email: {
+    in: ["body"],
+    isEmail: true,
+    normalizeEmail: true,
+    trim: true,
+    escape: true,
+  },
+  password: {
+    in: ["body"],
+    isString: true,
+    trim: true,
+    escape: true,
+  },
+};

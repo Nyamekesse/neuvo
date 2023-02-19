@@ -12,7 +12,7 @@ export const signup = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       const res = await createUser(data);
-      if (res.status === 200 && res.statusText === "OK") {
+      if (res.status === 201 && res.statusText === "CREATED") {
         const { data } = res;
         if (data.success) {
           thunkAPI.dispatch(
@@ -44,17 +44,17 @@ export const login = createAsyncThunk(
           thunkAPI.dispatch(
             displayAlert({ text: data.message, severity: SUCCESS })
           );
-
           return data;
-        } else {
-          thunkAPI.dispatch(
-            displayAlert({ text: data.message, severity: ERROR })
-          );
         }
+      } else if (res.status === 404 && res.statusText === "NOT FOUND") {
+        thunkAPI.dispatch(
+          displayAlert({ text: data.message, severity: ERROR })
+        );
       }
     } catch (error) {
-      thunkAPI.dispatch(displayAlert({ text: error.message, severity: ERROR }));
-      return error.message;
+      thunkAPI.dispatch(
+        displayAlert({ text: error.response?.data.message, severity: ERROR })
+      );
     }
   }
 );

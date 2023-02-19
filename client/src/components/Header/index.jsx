@@ -39,7 +39,7 @@ const Header = () => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Avatar alt={profile1} src={profile1} />
+            <Avatar alt={user.display_picture} src={user.display_picture} />
             <Typography ml={4} variant="h5" fontWeight={600}>
               {user.username}
             </Typography>

@@ -15,6 +15,8 @@ import { initialLogInValues } from "../../../utils";
 import { loginInUserSchema } from "../../../validation";
 import { useDispatch } from "react-redux";
 import { login } from "../../../features/auth/authenticationSlice";
+import { trim, normalizeEmail, escape, isEmail } from "validator";
+
 const FormSection = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,7 +30,16 @@ const FormSection = () => {
     resolver: yupResolver(loginInUserSchema),
   });
   const onSubmit = (data) => {
-    isValid ? dispatch(login(data)) & reset() : null;
+    isValid
+      ? dispatch(
+          login({
+            usernameOrEmail: isEmail(data.usernameOrEmail)
+              ? normalizeEmail(escape(data.usernameOrEmail))
+              : trim(escape(data.usernameOrEmail)),
+            password: trim(escape(data.password)),
+          })
+        ) & reset()
+      : null;
   };
   useEffect(() => {
     isSubmitSuccessful ? navigate("/", { replace: true }) : null;

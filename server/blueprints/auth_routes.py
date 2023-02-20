@@ -1,5 +1,5 @@
 from flask import request, jsonify, make_response, abort, Blueprint
-from models.models import User
+from models.user import User
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
     create_access_token,
@@ -15,6 +15,7 @@ from errors import (
     handle_internal_server_error,
     handle_not_processable_error,
 )
+from sqlalchemy.orm.exc import NoResultFound
 
 auth_bp = Blueprint(
     "auth",
@@ -37,6 +38,7 @@ def is_username_or_email_taken(username, email):
 def create_user():
     """create a new user"""
     data = request.get_json()
+
     if not data:
         abort(400, description="No data found")
     else:
@@ -45,7 +47,6 @@ def create_user():
             user_email = data.get("email").strip()
             password = data.get("password").strip()
             confirm_password = data.get("confirmPassword").strip()
-            display_picture = data.get("displayPicture").strip()
 
             default = "https://www.dovercourt.org/wp-content/uploads/2019/11/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.jpg"
             if is_username_or_email_taken(username, user_email):
@@ -72,9 +73,7 @@ def create_user():
             if confirm_password == password:
                 new_user = User(
                     username=username,
-                    display_picture=default
-                    if len(display_picture) <= 0
-                    else display_picture,
+                    display_picture=default,
                     user_email=user_email,
                     password=generate_password_hash(password).decode("utf-8"),
                 )
@@ -103,6 +102,7 @@ def create_user():
 @auth_bp.route("/login", methods=["POST"])
 def login_user():
     data = request.get_json()
+
     if data is None:
         abort(422)
     try:
@@ -113,7 +113,7 @@ def login_user():
             (User.user_email == username_or_email)
             | (User.username == username_or_email)
         ).one()
-
+        print(check_by_username_or_email)
         if check_by_username_or_email and check_password_hash(
             check_by_username_or_email.password, password
         ):
@@ -121,6 +121,7 @@ def login_user():
                 "id": check_by_username_or_email.id,
                 "username": check_by_username_or_email.username.format(),
                 "user_email": check_by_username_or_email.user_email.format(),
+                "display_picture": check_by_username_or_email.display_picture.format(),
             }
 
             access_token = create_access_token(identity=profile)
@@ -144,6 +145,13 @@ def login_user():
                 ),
                 404,
             )
+    except NoResultFound:
+        return make_response(
+            jsonify(
+                {"success": False, "message": "Incorrect username/email or password"}
+            ),
+            404,
+        )
     except Exception as e:
         print(e)
         abort(500)

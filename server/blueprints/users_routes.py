@@ -1,5 +1,5 @@
 from flask_jwt_extended import jwt_required
-from models.models import User
+from models.user import User
 from flask import Blueprint, request, make_response, jsonify, abort
 from flask_bcrypt import generate_password_hash
 from errors import (

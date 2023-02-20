@@ -1,6 +1,6 @@
 import math
 
-from models.models import Post
+from models.post import Post
 from flask_jwt_extended import jwt_required
 from flask import Blueprint, request, jsonify, abort, make_response
 

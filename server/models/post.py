@@ -1,9 +1,8 @@
 from datetime import datetime
-from exts import db
+from exts import db, marshmallow
 import shortuuid
 from sqlalchemy.dialects.postgresql import UUID
-from exts import marshmallow
-from flask_marshmallow import fields
+from marshmallow import fields, pre_load
 
 
 def gen_post_id():
@@ -47,31 +46,31 @@ class Post(db.Model):
             self.post_image = post_image.strip()
         db.session.commit()
 
-    def format(self):
-        return {
-            "id": str(self.id),
-            "title": self.title,
-            "date_posted": self.date_posted,
-            "post_content": self.post_content,
-            "post_image": self.post_image,
-            "author_id": self.author_id,
-            "author_name": self.author_name,
-        }
+    # def format(self):
+    #     return {
+    #         "id": str(self.id),
+    #         "title": self.title,
+    #         "date_posted": self.date_posted,
+    #         "post_content": self.post_content,
+    #         "post_image": self.post_image,
+    #         "author_id": self.author_id,
+    #         "author_name": self.author_name,
+    #     }
 
     def __repr__(self):
         return f"Post('{str(self.id)}', '{self.title}', '{self.date_posted}', '{self.post_content}','{self.post_image}'),'{self.author_id}','{self.author_name}'"
 
 
-class PostsSchema(marshmallow.Schema):
+class PostsSchema(marshmallow.SQLAlchemyAutoSchema):
     class Meta:
-        fields = (
-            "id",
-            "data_posted",
-            "post_content",
-            "post_image",
-            "author_id",
-            "author_name",
-        )
+        model = Post
+
+    @pre_load
+    def strip_whitespace(self, data, **kwargs):
+        return {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
+
+    id = fields.String(dump_only=True)
+    author_id = fields.UUID()
 
 
 post_schema = PostsSchema()

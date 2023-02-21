@@ -1,8 +1,9 @@
-from exts import db
+from exts import db, marshmallow
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
-from exts import marshmallow
-from flask_marshmallow import fields
+from marshmallow import fields
+from models.post import PostsSchema
+
 
 """
 class Users:
@@ -45,22 +46,26 @@ class User(db.Model):
 
         db.session.commit()
 
-    def format(self):
-        return {
-            "id": str(self.id),
-            "username": self.username,
-            "user_email": self.user_email,
-            "password": self.password,
-            "display_picture": self.display_picture,
-        }
+    # def format(self):
+    #     return {
+    #         "id": str(self.id),
+    #         "username": self.username,
+    #         "user_email": self.user_email,
+    #         "password": self.password,
+    #         "display_picture": self.display_picture,
+    #     }
 
     def __repr__(self):
         return f"User('{str(self.id)}', '{self.username}', '{self.password}', '{self.user_email}','{self.display_picture}')"
 
 
-class UserSchema(marshmallow.Schema):
+class UserSchema(marshmallow.SQLAlchemyAutoSchema):
     class Meta:
-        fields = ("id", "username", "user_email", "display_picture", "posts")
+        model = User
+        exclude = ("password",)
+
+    id = fields.String(dump_only=True)
+    posts = fields.Nested("PostSchema", many=True, exclude=("author",))
 
 
 user_schema = UserSchema()

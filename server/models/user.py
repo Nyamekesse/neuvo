@@ -1,9 +1,8 @@
 from exts import db, marshmallow
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
-from marshmallow import fields
+from marshmallow import fields, pre_load
 from models.post import PostsSchema
-
 
 """
 class Users:
@@ -36,24 +35,15 @@ class User(db.Model):
         self, username=None, display_picture=None, user_email=None, password=None
     ) -> None:
         if username:
-            self.username = username.strip()
+            self.username = username
         if display_picture:
-            self.display_picture = display_picture.strip()
+            self.display_picture = display_picture
         if user_email:
-            self.user_email = user_email.strip()
+            self.user_email = user_email
         if password:
             self.password = password
 
         db.session.commit()
-
-    # def format(self):
-    #     return {
-    #         "id": str(self.id),
-    #         "username": self.username,
-    #         "user_email": self.user_email,
-    #         "password": self.password,
-    #         "display_picture": self.display_picture,
-    #     }
 
     def __repr__(self):
         return f"User('{str(self.id)}', '{self.username}', '{self.password}', '{self.user_email}','{self.display_picture}')"
@@ -62,10 +52,16 @@ class User(db.Model):
 class UserSchema(marshmallow.SQLAlchemyAutoSchema):
     class Meta:
         model = User
-        exclude = ("password",)
+        exclude = ("password", "posts")
+
+    @pre_load
+    def strip_whitespace(self, data, **kwargs):
+        return {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
 
     id = fields.String(dump_only=True)
-    posts = fields.Nested("PostSchema", many=True, exclude=("author",))
+    posts = fields.Nested(
+        "PostsSchema", many=True, exclude=("author_id", "author_name")
+    )
 
 
 user_schema = UserSchema()

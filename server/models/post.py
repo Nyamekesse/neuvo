@@ -39,23 +39,12 @@ class Post(db.Model):
 
     def update(self, title=None, post_content=None, post_image=None) -> None:
         if title:
-            self.title = title.strip()
+            self.title = title
         if post_content:
-            self.post_content = post_content.strip()
+            self.post_content = post_content
         if post_image:
-            self.post_image = post_image.strip()
+            self.post_image = post_image
         db.session.commit()
-
-    # def format(self):
-    #     return {
-    #         "id": str(self.id),
-    #         "title": self.title,
-    #         "date_posted": self.date_posted,
-    #         "post_content": self.post_content,
-    #         "post_image": self.post_image,
-    #         "author_id": self.author_id,
-    #         "author_name": self.author_name,
-    #     }
 
     def __repr__(self):
         return f"Post('{str(self.id)}', '{self.title}', '{self.date_posted}', '{self.post_content}','{self.post_image}'),'{self.author_id}','{self.author_name}'"

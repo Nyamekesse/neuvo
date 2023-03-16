@@ -30,7 +30,7 @@ const Header = () => {
             fontWeight={700}
             fontSize={36}
           >
-            <Link to={"/"}>BlogX</Link>
+            <Link to={"/posts?page=1"}>BlogX</Link>
           </Typography>
         </Title>
         {user ? (

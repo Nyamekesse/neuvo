@@ -14,9 +14,9 @@ const Feeds = () => {
   const { posts, isLoading, numberOfPages } = useSelector(
     (state) => state.post
   );
-  const dispatch = useDispatch(page);
+  const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getAllPosts());
+    dispatch(getAllPosts(page));
   }, []);
 
   return (

@@ -41,8 +41,10 @@ export const login = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       const res = await loginUser(data);
+
       if (res.status === 200 && res.statusText === "OK") {
         const { data } = res;
+
         if (data.success)
           thunkAPI.dispatch(
             displayAlert({ text: data.message, severity: SUCCESS })

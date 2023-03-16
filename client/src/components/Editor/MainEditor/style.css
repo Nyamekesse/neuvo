@@ -4,7 +4,7 @@
   height: 100%;
 }
 .editor-class {
-  background-color: rgb(248, 241, 241);
+  background-color: #f7f7f7;
   padding: 1rem;
   border: 1px solid #ccc;
 }
@@ -15,4 +15,9 @@
 .preview {
   padding: 1rem;
   margin-top: 1rem;
+}
+.rdw-option-wrapper {
+  width: auto;
+  min-width: auto;
+  height: auto;
 }

@@ -1,12 +1,7 @@
 from datetime import datetime
-from exts import db, marshmallow
-import shortuuid
+from exts import db, marshmallow, gen_short_id
 from sqlalchemy.dialects.postgresql import UUID
 from marshmallow import fields, pre_load
-
-
-def gen_post_id():
-    return shortuuid.uuid()
 
 
 """
@@ -20,7 +15,7 @@ class Post:
 
 class Post(db.Model):
     __tablename__ = "posts"
-    id = db.Column(db.String(22), primary_key=True, unique=True, default=gen_post_id)
+    id = db.Column(db.String(22), primary_key=True, unique=True, default=gen_short_id)
 
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

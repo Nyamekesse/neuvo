@@ -1,3 +1,4 @@
+from sqlalchemy import CheckConstraint
 from exts import db, marshmallow
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
@@ -21,7 +22,15 @@ class User(db.Model):
     user_email = db.Column(db.String(120), unique=True, nullable=False)
     display_picture = db.Column(db.String, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    role = db.Column(db.String(10), nullable=False)
     posts = db.relationship("Post", backref="author", lazy=True)
+
+    __table_args__ = (
+        CheckConstraint(
+            role.in_(["user", "creator"]),
+            name="check_user_role",
+        ),
+    )
 
     def insert(self) -> None:
         db.session.add(self)
@@ -46,7 +55,7 @@ class User(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return f"User('{str(self.id)}', '{self.username}', '{self.password}', '{self.user_email}','{self.display_picture}')"
+        return f"User('{str(self.id)}', '{self.username}', '{self.password}', '{self.user_email}','{self.display_picture}','{self.role}')"
 
 
 class UserSchema(marshmallow.SQLAlchemyAutoSchema):
@@ -59,6 +68,7 @@ class UserSchema(marshmallow.SQLAlchemyAutoSchema):
         return {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
 
     id = fields.String(dump_only=True)
+    # include the user's posts in the serialized output
     posts = fields.Nested(
         "PostsSchema", many=True, exclude=("author_id", "author_name")
     )

@@ -45,7 +45,7 @@ def fetch_all_posts():
             ),
             200,
         )
-    except InvalidRequestError as e:
+    except InvalidRequestError:
         return handle_not_found("Page not found")
 
 
@@ -103,7 +103,7 @@ def update_post(id):
 
 
 @post_bp.route("/post/<id>", methods=["DELETE"])
-@jwt_required()
+# @jwt_required()
 def delete(id):
     """delete a specific post"""
     post_to_delete = Post.query.get_or_404(str(id).strip())

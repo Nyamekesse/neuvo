@@ -1,6 +1,6 @@
 from psycopg2 import IntegrityError
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, jsonify, make_response
 from models.post import Post
 from models.saved_posts import SavedPost, saved_post_schema
 from errors import (
@@ -12,9 +12,8 @@ from errors import (
 )
 
 save_post_bp = Blueprint(
-    "saved_posts",
+    "saved_post",
     __name__,
-    url_prefix="/save_post",
 )
 
 

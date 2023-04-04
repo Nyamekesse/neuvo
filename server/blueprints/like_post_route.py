@@ -12,9 +12,8 @@ from errors import (
 )
 
 like_post_bp = Blueprint(
-    "saved_posts",
+    "liked_posts",
     __name__,
-    url_prefix="/like_post",
 )
 
 

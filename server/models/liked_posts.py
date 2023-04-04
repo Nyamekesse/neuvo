@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from exts import db, gen_short_id, marshmallow
 from sqlalchemy.dialects.postgresql import UUID
 from marshmallow import fields
@@ -7,8 +7,8 @@ from marshmallow import fields
 class LikedPost(db.Model):
     __tablename__ = "liked_posts"
     id = db.Column(db.String(22), primary_key=True, unique=True, default=gen_short_id)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
+    post_id = db.Column(db.String(22), db.ForeignKey("posts.id"), nullable=False)
     liked_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def insert(self) -> None:
@@ -31,8 +31,8 @@ class LikedPostSchema(marshmallow.SQLAlchemyAutoSchema):
         model = LikedPost
 
     id = fields.String(required=True)
-    user_id = fields.Integer(required=True)
-    post_id = fields.Integer(required=True)
+    user_id = fields.UUID(required=True)
+    post_id = fields.String(required=True)
     liked_at = fields.DateTime(required=True)
 
 

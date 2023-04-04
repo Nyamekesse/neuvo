@@ -20,6 +20,10 @@ class SavedPost(db.Model):
     def rollback_session(self) -> None:
         db.session.rollback()
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def __repr__(self):
         return f"SavedPost('{self.id}', '{self.user_id}', '{self.post_id}'),'{self.saved_at}'"
 

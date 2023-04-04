@@ -1,9 +1,6 @@
 from psycopg2 import IntegrityError
-from sqlalchemy.exc import InvalidRequestError
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import Blueprint, request, jsonify, make_response
-from marshmallow import ValidationError
-from sqlalchemy.exc import SQLAlchemyError
 from models.post import Post
 from models.saved_posts import SavedPost, saved_post_schema
 from errors import (
@@ -31,16 +28,22 @@ def save_post(post_id):
 
     # Check if post is already saved
     saved_post = SavedPost.query.filter_by(user_id=user_id, post_id=post_id).first()
-    if saved_post:
-        return (
-            jsonify({"success": False, "message": "Post already saved"}),
-            400,
-        )
     try:
+        if saved_post:
+            saved_post.delete()
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                    }
+                ),
+                204,
+            )
+
         # Create new saved post
         new_saved_post = SavedPost(user_id=user_id, post_id=post_id)
         new_saved_post.insert()
-        return (
+        return make_response(
             jsonify(
                 {
                     "success": True,

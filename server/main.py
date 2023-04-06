@@ -1,6 +1,5 @@
 from flask import Flask
 from exts import db, marshmallow, migrate
-
 from flask_jwt_extended import JWTManager
 from models.user import User
 from models.post import Post
@@ -18,12 +17,12 @@ from config import DevConfig
 def create_app(config=DevConfig):
     app = Flask(__name__)
     app.config.from_object(config)
-    db.init_app(app)
-    marshmallow.init_app(app)
-    migrate.init_app(app, db)
     CORS(app)
     Bcrypt(app)
     JWTManager(app)
+    marshmallow.init_app(app)
+    db.init_app(app)
+    migrate.init_app(app, db)
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(post_bp)

@@ -17,17 +17,17 @@ class Users:
 
 class User(db.Model):
     __tablename__ = "users"
-    id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid4)
+    id = db.Column(db.String(36), primary_key=True, unique=True, default=str(uuid4()))
     username = db.Column(db.String(20), unique=True, nullable=False)
     user_email = db.Column(db.String(120), unique=True, nullable=False)
     display_picture = db.Column(db.String, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    role = db.Column(db.String(10), nullable=False)
+    role = db.Column(db.String(10), nullable=False, default="user")
     posts = db.relationship("Post", backref="author", lazy=True)
 
     __table_args__ = (
         CheckConstraint(
-            role.in_(["user", "creator"]),
+            role.in_(["user", "creator", "admin"]),
             name="check_user_role",
         ),
     )

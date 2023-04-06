@@ -21,7 +21,7 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     post_content = db.Column(db.Text, nullable=False)
     post_image = db.Column(db.String, nullable=False)
-    author_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
+    author_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
     author_name = db.Column(db.String(20), nullable=False)
 
     def insert(self) -> None:
@@ -54,7 +54,7 @@ class PostsSchema(marshmallow.SQLAlchemyAutoSchema):
         return {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
 
     id = fields.String(dump_only=True)
-    author_id = fields.UUID()
+    author_id = fields.String()
 
 
 post_schema = PostsSchema()

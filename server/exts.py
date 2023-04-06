@@ -3,6 +3,7 @@ from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 import shortuuid
 
+
 db = SQLAlchemy()
 marshmallow = Marshmallow()
 migrate = Migrate()

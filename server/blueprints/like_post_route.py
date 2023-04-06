@@ -49,12 +49,12 @@ def like_post(post_id):
             ),
             201,
         )
-    except IntegrityError:
+
+    except Exception as e:
         new_liked_post.rollback_session()
-        return handle_internal_server_error("Something went wrong, please try again")
-    except:
-        new_liked_post.rollback_session()
-        return handle_internal_server_error("Something went wrong, please try again")
+        return internal_server_error_handler(
+            "something went wrong please try again later"
+        )
 
 
 @like_post_bp.errorhandler(404)

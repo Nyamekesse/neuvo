@@ -136,8 +136,9 @@ def login_user():
             404,
         )
     except Exception as e:
-        print(e)
-        abort(500)
+        return internal_server_error_handler(
+            "something went wrong please try again later"
+        )
 
 
 @auth_bp.route("/refresh", methods=["POST"])

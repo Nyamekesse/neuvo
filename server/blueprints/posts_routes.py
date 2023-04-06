@@ -3,7 +3,6 @@ from models.post import Post, posts_schema, post_schema
 from flask_jwt_extended import jwt_required
 from flask import Blueprint, request, jsonify, make_response
 from marshmallow import ValidationError
-from sqlalchemy.exc import SQLAlchemyError
 from errors import (
     handle_not_processable_error,
     handle_unauthorized,
@@ -47,6 +46,10 @@ def fetch_all_posts():
         )
     except InvalidRequestError:
         return handle_not_found("Page not found")
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
+        )
 
 
 @post_bp.route("/new-post", methods=["POST"])
@@ -69,16 +72,22 @@ def create_new_post():
         )
     except ValidationError:
         return handle_not_processable_error("Values entered cannot be processable")
-    except SQLAlchemyError:
-        return handle_internal_server_error("Something went wrong, please tr again")
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
+        )
 
 
 @post_bp.route("/post-details/<id>", methods=["GET"])
 def fetch_post_details(id):
     """get a specific post"""
-
-    single_post = Post.query.get_or_404(str(id).strip())
-    return jsonify({"success": True, "post": post_schema.dump(single_post)})
+    try:
+        single_post = Post.query.get_or_404(str(id).strip())
+        return jsonify({"success": True, "post": post_schema.dump(single_post)})
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
+        )
 
 
 @post_bp.route("/post/<id>", methods=["PUT"])
@@ -96,14 +105,14 @@ def update_post(id):
         )
     except ValidationError:
         return handle_not_processable_error("Values entered cannot be processable")
-    except SQLAlchemyError:
-        return handle_internal_server_error(
-            "Something went wrong, kindly try again later"
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
         )
 
 
 @post_bp.route("/post/<id>", methods=["DELETE"])
-# @jwt_required()
+@jwt_required()
 def delete(id):
     """delete a specific post"""
     post_to_delete = Post.query.get_or_404(str(id).strip())
@@ -113,9 +122,9 @@ def delete(id):
             jsonify({"success": True, "message": "post successfully deleted"}),
             200,
         )
-    except SQLAlchemyError:
-        return handle_internal_server_error(
-            "Something went wrong, kindly try again later"
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
         )
 
 

@@ -35,14 +35,14 @@ def fetch_all_users():
         )
     except TimeoutError:
         abort(500)
-    except SQLAlchemyError:
-        return handle_not_processable_error(
-            "Unable to process request please try again"
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
         )
 
 
 @users_bp.route("/user/<id>", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def fetch_specific_user(id):
     """get specific user from database"""
     user = User.query.get_or_404(str(id).strip())
@@ -50,14 +50,14 @@ def fetch_specific_user(id):
         return make_response(jsonify({"user": user_schema.dump(user)}), 200)
     except TimeoutError:
         abort(500)
-    except SQLAlchemyError:
-        return handle_not_processable_error(
-            "Unable to process request please try again"
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
         )
 
 
 @users_bp.route("/user/<id>", methods=["PUT"])
-# @jwt_required()
+@jwt_required()
 def update_specific_user(id):
     """update user details in database"""
     data = request.get_json()
@@ -89,14 +89,14 @@ def update_specific_user(id):
         return handle_not_processable_error("Values entered cannot be processable")
     except TimeoutError:
         abort(500)
-    except SQLAlchemyError:
-        return handle_not_processable_error(
-            "Unable to process request please try again"
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
         )
 
 
 @users_bp.route("/user/<id>", methods=["DELETE"])
-# @jwt_required()
+@jwt_required()
 def delete_user(id):
     """delete a user from the database"""
     user_to_be_deleted = User.query.get_or_404(str(id).strip())
@@ -105,9 +105,9 @@ def delete_user(id):
         return make_response(
             jsonify({"success": True, "message": "User deleted successfully"}), 200
         )
-    except SQLAlchemyError:
-        return handle_not_processable_error(
-            "Unable to process request please try again"
+    except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
         )
 
 

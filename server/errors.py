@@ -17,7 +17,7 @@ def handle_forbidden(msg):
 
 
 def handle_not_found(msg):
-    message = msg if msg else "Not found"
+    message = msg if msg else "Resource not found"
     return make_response(jsonify({"success": False, "message": message}), 404)
 
 
@@ -33,4 +33,5 @@ def handle_not_processable_error(msg):
 
 def handle_internal_server_error(msg):
     message = msg if msg else "Internal server error"
+
     return make_response(jsonify({"success": False, "message": message}), 500)

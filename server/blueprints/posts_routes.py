@@ -3,12 +3,14 @@ from models.post import Post, posts_schema, post_schema
 from flask_jwt_extended import jwt_required
 from flask import Blueprint, request, jsonify, make_response
 from marshmallow import ValidationError
+from sqlalchemy.orm.exc import NoResultFound
 from errors import (
     handle_not_processable_error,
     handle_unauthorized,
     handle_not_found,
     handle_method_not_allowed,
     handle_internal_server_error,
+    handle_no_content,
 )
 
 post_bp = Blueprint(
@@ -31,7 +33,7 @@ def fetch_all_posts():
         if page > paginated_posts.pages:
             return handle_not_found("Page not found")
         elif not paginated_posts.items:
-            return handle_not_found("There are no posts available at the moment")
+            return handle_no_content("No posts available at the moment")
 
         return make_response(
             jsonify(
@@ -45,7 +47,7 @@ def fetch_all_posts():
             200,
         )
     except InvalidRequestError:
-        return handle_not_found("Page not found")
+        return handle_not_processable_error("")
     except Exception as e:
         return internal_server_error_handler(
             "something went wrong please try again later"
@@ -57,6 +59,8 @@ def fetch_all_posts():
 def create_new_post():
     """create a new post"""
     data = request.get_json()
+    if not data:
+        return handle_not_processable_error("")
     try:
         loaded_data = post_schema.load(data)
         new_post = Post(**loaded_data)
@@ -71,7 +75,7 @@ def create_new_post():
             200,
         )
     except ValidationError:
-        return handle_not_processable_error("Values entered cannot be processable")
+        return handle_not_processable_error("")
     except Exception as e:
         return internal_server_error_handler(
             "something went wrong please try again later"
@@ -82,9 +86,13 @@ def create_new_post():
 def fetch_post_details(id):
     """get a specific post"""
     try:
-        single_post = Post.query.get_or_404(str(id).strip())
+        single_post = Post.query.get(str(id).strip())
+        if not single_post:
+            return handle_not_found("")
         return jsonify({"success": True, "post": post_schema.dump(single_post)})
+
     except Exception as e:
+        print(e)
         return internal_server_error_handler(
             "something went wrong please try again later"
         )
@@ -95,6 +103,8 @@ def fetch_post_details(id):
 def update_post(id):
     """update a specific post"""
     data = request.get_json()
+    if not data:
+        return handle_not_processable_error("")
     post_to_update = Post.query.get_or_404(str(id).strip())
     try:
         loaded_data = post_schema.load(data, instance=post_to_update, partial=True)
@@ -104,7 +114,7 @@ def update_post(id):
             {"success": True, "updated_post": post_schema.dump(post_to_update)}
         )
     except ValidationError:
-        return handle_not_processable_error("Values entered cannot be processable")
+        return handle_not_processable_error("")
     except Exception as e:
         return internal_server_error_handler(
             "something went wrong please try again later"
@@ -122,6 +132,8 @@ def delete(id):
             jsonify({"success": True, "message": "post successfully deleted"}),
             200,
         )
+    except NoResultFound:
+        return handle_not_found("")
     except Exception as e:
         return internal_server_error_handler(
             "something went wrong please try again later"
@@ -130,19 +142,19 @@ def delete(id):
 
 @post_bp.errorhandler(404)
 def not_found_handler(e):
-    return handle_not_found("the requested resource was not found")
+    return handle_not_found("")
 
 
 @post_bp.errorhandler(500)
 def internal_server_error_handler(e):
-    return handle_internal_server_error("something went wrong please try again later")
+    return handle_internal_server_error("")
 
 
 @post_bp.errorhandler(405)
 def method_not_allowed_handler(e):
-    return handle_method_not_allowed()
+    return handle_method_not_allowed("")
 
 
 @post_bp.errorhandler(401)
 def unauthorized_handler(e):
-    return handle_unauthorized()
+    return handle_unauthorized("")

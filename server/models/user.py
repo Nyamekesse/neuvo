@@ -41,7 +41,12 @@ class User(db.Model):
         db.session.commit()
 
     def update(
-        self, username=None, display_picture=None, user_email=None, password=None
+        self,
+        username=None,
+        display_picture=None,
+        user_email=None,
+        password=None,
+        role=None,
     ) -> None:
         if username:
             self.username = username
@@ -51,6 +56,8 @@ class User(db.Model):
             self.user_email = user_email
         if password:
             self.password = password
+        if role:
+            self.role = role
 
         db.session.commit()
 

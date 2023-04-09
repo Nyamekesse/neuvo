@@ -1,4 +1,6 @@
-from exts import db, marshmallow, migrate, app
+import sys
+from flask import Flask
+from exts import db, marshmallow, migrate, LOGGING_CONFIG
 from flask_jwt_extended import JWTManager
 from models.user import User
 from models.post import Post
@@ -10,17 +12,20 @@ from blueprints.save_post_route import save_post_bp
 from blueprints.like_post_route import like_post_bp
 from blueprints.default_routes import default_bp
 from flask_cors import CORS
-from config import DevConfig, Logging, ProConfig, TestConfig
+from config import DevConfig, ProConfig, TestConfig
 import os
-from logging.config import dictConfig
-import logging
+import logging.config
 
 
 if not os.path.exists("logs"):
     os.mkdir("logs")
 
+# logging.config.dictConfig(LOGGING_CONFIG)
 
-def create_app(config):
+
+def create_app(config=DevConfig):
+    logging.config.dictConfig(LOGGING_CONFIG)
+    app = Flask(__name__)
     if app.config.get("ENV") == "production":
         app.config.from_object(ProConfig)
     elif app.config.get("ENV") == "testing":
@@ -39,12 +44,11 @@ def create_app(config):
     app.register_blueprint(save_post_bp)
     app.register_blueprint(like_post_bp)
     app.register_blueprint(default_bp)
-    dictConfig(Logging.LOGGING_CONFIG)
 
     @app.errorhandler(Exception)
     def handle_exception(e):
-        app.logger.exception("Unhandled Exception: %s", str(e))
-        return "An error occurred.", 500
+        app.logger.debug("Unhandled Exception: %s", str(e))
+        return "An error occurred here.", 500
 
     @app.shell_context_processor
     def make_shell_context():

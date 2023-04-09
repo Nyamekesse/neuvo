@@ -1,4 +1,4 @@
-from flask import request, jsonify, make_response, abort, Blueprint
+from flask import request, jsonify, make_response, Blueprint
 from models.user import User, user_schema
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
@@ -28,12 +28,9 @@ auth_bp = Blueprint(
 
 
 def is_username_or_email_taken(username, email):
-    # Query the database to check if a user with the given username or email already exists
     user = User.query.filter(
         (User.username == username) | (User.user_email == email)
     ).first()
-
-    # Return True if a user with the given username or email exists, False otherwise
     return user is not None
 
 
@@ -48,7 +45,7 @@ def create_user():
     data = request.get_json()
 
     if not data:
-        abort(400, "No data found")
+        return handle_not_processable_error("")
     else:
         try:
             username = data.get("username")
@@ -57,45 +54,34 @@ def create_user():
             confirm_password = data.get("confirmPassword")
 
             if is_username_or_email_taken(username, user_email):
-                abort(422, "Username or Email already exists")
+                return handle_not_processable_error("Username or Email already exist")
 
-                return make_response(
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": f"The email specified {check_user_by_email.username.format()} already exist",
-                        }
-                    ),
-                    400,
-                )
-
-            if confirm_password == password:
-                new_user = User(
-                    username=username,
-                    display_picture=avatar_generator(username),
-                    user_email=user_email,
-                    password=generate_password_hash(password).decode("utf-8"),
-                )
-                new_user.insert()
-                new_user = user_schema.dump(new_user)
-                return make_response(
-                    jsonify(
-                        {
-                            "success": True,
-                            "message": "User successfully created",
-                            "new_author_id": new_user.get("id"),
-                            "new_username": new_user.get("username"),
-                        }
-                    ),
-                    201,
-                )
-
+            if confirm_password != password:
+                return handle_bad_request("Passwords must match")
+            new_user = User(
+                username=username,
+                display_picture=avatar_generator(username),
+                user_email=user_email,
+                password=generate_password_hash(password).decode("utf-8"),
+            )
+            new_user.insert()
+            new_user = user_schema.dump(new_user)
             return make_response(
-                jsonify({"success": False, "message": "Password must match"}),
-                400,
+                jsonify(
+                    {
+                        "success": True,
+                        "message": "User successfully created",
+                        "new_author_id": new_user.get("id"),
+                        "new_username": new_user.get("username"),
+                    }
+                ),
+                201,
             )
         except Exception as e:
-            abort(500)
+            print(e)
+            return internal_server_error_handler(
+                "Something went wrong please try again later"
+            )
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -103,7 +89,7 @@ def login_user():
     data = request.get_json()
 
     if data is None:
-        abort(422)
+        return handle_not_processable_error("")
     try:
         username_or_email = data.get("usernameOrEmail").strip()
         password = data.get("password").strip()
@@ -129,13 +115,9 @@ def login_user():
             )
 
     except NoResultFound:
-        return make_response(
-            jsonify(
-                {"success": False, "message": "Incorrect username/email or password"}
-            ),
-            404,
-        )
+        return handle_not_found("User not found")
     except Exception as e:
+        print(e)
         return internal_server_error_handler(
             "something went wrong please try again later"
         )
@@ -156,29 +138,29 @@ def logout_user():
 
 @auth_bp.errorhandler(400)
 def bad_request_handler(e):
-    return handle_bad_request(e)
+    return handle_bad_request("")
 
 
 @auth_bp.errorhandler(403)
 def forbidden_handler(e):
-    return handle_forbidden(e)
+    return handle_forbidden("")
 
 
 @auth_bp.errorhandler(404)
 def not_found_handler(e):
-    return handle_not_found(e)
+    return handle_not_found("")
 
 
 @auth_bp.errorhandler(405)
 def method_not_allowed_handler(e):
-    return handle_method_not_allowed(e)
+    return handle_method_not_allowed("")
 
 
 @auth_bp.errorhandler(500)
 def internal_server_error_handler(e):
-    return handle_internal_server_error(e)
+    return handle_internal_server_error("")
 
 
 @auth_bp.errorhandler(422)
 def not_processable_error_handler(e):
-    return handle_not_processable_error(e)
+    return handle_not_processable_error("")

@@ -1,6 +1,7 @@
 import sys
 from flask import Flask
-from exts import db, marshmallow, migrate, LOGGING_CONFIG
+from exts import db, marshmallow, migrate
+from logs_config import LOGGING_CONFIG
 from flask_jwt_extended import JWTManager
 from models.user import User
 from models.post import Post
@@ -15,6 +16,7 @@ from flask_cors import CORS
 from config import DevConfig, ProConfig, TestConfig
 import os
 import logging.config
+from errors import handle_internal_server_error
 
 
 if not os.path.exists("logs"):
@@ -48,7 +50,7 @@ def create_app(config=DevConfig):
     @app.errorhandler(Exception)
     def handle_exception(e):
         app.logger.debug("Unhandled Exception: %s", str(e))
-        return "An error occurred here.", 500
+        return handle_internal_server_error("")
 
     @app.shell_context_processor
     def make_shell_context():

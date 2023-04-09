@@ -1,6 +1,7 @@
 from datetime import datetime
-from exts import db, gen_short_id, marshmallow
+from exts import db, marshmallow
 from marshmallow import fields
+from utils import gen_short_id
 
 
 class LikedPost(db.Model):

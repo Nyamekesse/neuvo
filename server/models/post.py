@@ -1,5 +1,6 @@
 from datetime import datetime
-from exts import db, marshmallow, gen_short_id
+from exts import db, marshmallow
+from utils import gen_short_id
 from sqlalchemy.dialects.postgresql import UUID
 from marshmallow import fields, pre_load
 

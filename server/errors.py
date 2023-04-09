@@ -22,7 +22,7 @@ def handle_forbidden(msg):
 
 
 def handle_not_found(msg):
-    message = msg if msg else "Resource not found"
+    message = msg if msg else "Not found"
     return make_response(jsonify({"success": False, "message": message}), 404)
 
 

@@ -14,6 +14,7 @@ from errors import (
     handle_method_not_allowed,
     handle_internal_server_error,
     handle_not_processable_error,
+    handle_forbidden,
 )
 from sqlalchemy.orm.exc import NoResultFound
 from decouple import config
@@ -87,24 +88,26 @@ def create_user():
 @auth_bp.route("/login", methods=["POST"])
 def login_user():
     data = request.get_json()
-
     if data is None:
         return handle_not_processable_error("")
     try:
         username_or_email = data.get("usernameOrEmail").strip()
         password = data.get("password").strip()
 
-        check_by_username_or_email = User.query.filter(
+        user = User.query.filter(
             (User.user_email == username_or_email)
             | (User.username == username_or_email)
         ).one()
 
-        if check_by_username_or_email and check_password_hash(
-            check_by_username_or_email.password, password
-        ):
-            profile = user_schema.dump(check_by_username_or_email)
-            access_token = create_access_token(identity=profile)
-            refresh_token = create_refresh_token(identity=profile)
+        if user and check_password_hash(user.password, password):
+            user_identity = {"id": user.id, "role": user.role}
+            profile = {
+                "username": user.username,
+                "user_email": user.user_email,
+                "display_picture": user.display_picture,
+            }
+            access_token = create_access_token(identity=user_identity, fresh=True)
+            refresh_token = create_refresh_token(identity=user_identity)
             return jsonify(
                 {
                     "success": True,
@@ -113,6 +116,7 @@ def login_user():
                     "refresh_token": refresh_token,
                 }
             )
+        return handle_not_found("")
 
     except NoResultFound:
         return handle_not_found("User not found")
@@ -126,9 +130,13 @@ def login_user():
 @auth_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh_token():
-    current_user = get_jwt_identity()
-    new_access_token = create_access_token(identity=current_user)
-    return make_response(jsonify({"access_token": new_access_token}), 200)
+    try:
+        current_user = get_jwt_identity()
+        new_access_token = create_access_token(identity=current_user, fresh=False)
+        return make_response(jsonify({"access_token": new_access_token}), 200)
+    except Exception as e:
+        print(e)
+        return handle_internal_server_error("")
 
 
 @auth_bp.route("/logout")

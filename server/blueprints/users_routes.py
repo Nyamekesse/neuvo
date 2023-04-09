@@ -15,7 +15,8 @@ from errors import (
 )
 from json import JSONDecodeError
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import TimeoutError, IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import TimeoutError, IntegrityError
+from utils import role_required
 
 users_bp = Blueprint(
     "users",
@@ -25,6 +26,8 @@ users_bp = Blueprint(
 
 
 @users_bp.route("/", methods=["GET"])
+@jwt_required()
+@role_required("admin")
 def fetch_all_users():
     """get all users from database"""
     try:
@@ -105,6 +108,7 @@ def update_specific_user(id):
 
 @users_bp.route("/user/<id>", methods=["DELETE"])
 @jwt_required()
+@role_required("admin")
 def delete_user(id):
     """delete a user from the database"""
     user_to_be_deleted = User.query.get_or_404(str(id).strip())

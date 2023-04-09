@@ -1,7 +1,6 @@
 from sqlalchemy import CheckConstraint
 from exts import db, marshmallow
 from uuid import uuid4
-from sqlalchemy.dialects.postgresql import UUID
 from marshmallow import fields, pre_load
 from models.post import PostsSchema
 

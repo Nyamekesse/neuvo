@@ -1,5 +1,5 @@
 from flask import request, jsonify, make_response, Blueprint
-from models.user import User, user_schema
+from models.user import User, RefreshToken, user_schema
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
     create_access_token,
@@ -108,14 +108,22 @@ def login_user():
             }
             access_token = create_access_token(identity=user_identity, fresh=True)
             refresh_token = create_refresh_token(identity=user_identity)
-            return jsonify(
-                {
-                    "success": True,
-                    "message": f"Login successful, welcome {profile.get('username')}",
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                }
+            headers = {"Authorization": "Bearer {}".format(access_token)}
+            response = make_response(
+                jsonify(
+                    {
+                        "success": True,
+                        "message": f"Login successful, welcome {profile.get('username').title()}",
+                        "profile": user_schema.dump(profile),
+                    }
+                ),
+                200,
+                headers,
             )
+            response.set_cookie("refresh_token", value=refresh_token, httponly=True)
+            tokens_record = RefreshToken(user_id=user.id, token=refresh_token)
+            tokens_record.insert()
+            return response
         return handle_not_found("")
 
     except NoResultFound:
@@ -139,9 +147,18 @@ def refresh_token():
         return handle_internal_server_error("")
 
 
-@auth_bp.route("/logout")
+@auth_bp.route("/logout", methods=["POST"])
+@jwt_required()
 def logout_user():
-    pass
+    user = get_jwt_identity()
+    # print(user_id["id"])
+    tokens = RefreshToken.query.filter(RefreshToken.user_id == user["id"])
+    if tokens:
+        for token in tokens:
+            token.delete()
+    return make_response(
+        jsonify({"success": True, "message": "LogOut successful"}), 200
+    )
 
 
 @auth_bp.errorhandler(400)

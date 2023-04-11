@@ -3,6 +3,7 @@ from exts import db, marshmallow
 from uuid import uuid4
 from marshmallow import fields, pre_load
 from models.post import PostsSchema
+from utils import gen_short_id
 
 """
 class Users:
@@ -78,6 +79,20 @@ class UserSchema(marshmallow.SQLAlchemyAutoSchema):
     posts = fields.Nested(
         "PostsSchema", many=True, exclude=("author_id", "author_name")
     )
+
+
+class RefreshToken(db.Model):
+    id = db.Column(db.String(22), primary_key=True, unique=True, default=gen_short_id)
+    user_id = db.Column(db.String(36), nullable=False)
+    token = db.Column(db.Text, nullable=False)
+
+    def insert(self) -> None:
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self) -> None:
+        db.session.delete(self)
+        db.session.commit()
 
 
 user_schema = UserSchema()

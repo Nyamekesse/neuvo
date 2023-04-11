@@ -14,6 +14,19 @@ class Post:
 """
 
 
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), unique=True)
+
+    def insert(self) -> None:
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self) -> None:
+        db.session.delete(self)
+        db.session.commit()
+
+
 class Post(db.Model):
     __tablename__ = "posts"
     id = db.Column(db.String(22), primary_key=True, unique=True, default=gen_short_id)
@@ -24,6 +37,8 @@ class Post(db.Model):
     post_image = db.Column(db.String, nullable=False)
     author_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
     author_name = db.Column(db.String(20), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
+    category = db.relationship("Category", backref=db.backref("posts", lazy=True))
 
     def insert(self) -> None:
         db.session.add(self)

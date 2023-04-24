@@ -1,5 +1,5 @@
 from datetime import datetime
-from exts import db, marshmallow
+from exts import db, marshmallow, whooshee
 from utils import gen_short_id
 from sqlalchemy.dialects.postgresql import UUID
 from marshmallow import fields, pre_load
@@ -27,10 +27,10 @@ class Category(db.Model):
         db.session.commit()
 
 
+@whooshee.register_model("title", "post_content")  # expose fields for search
 class Post(db.Model):
     __tablename__ = "posts"
     id = db.Column(db.String(22), primary_key=True, unique=True, default=gen_short_id)
-
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     post_content = db.Column(db.Text, nullable=False)
@@ -70,6 +70,7 @@ class PostsSchema(marshmallow.SQLAlchemyAutoSchema):
         return {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
 
     id = fields.String(dump_only=True)
+    date_posted = fields.DateTime(dump_only=True)
     author_id = fields.String()
 
 

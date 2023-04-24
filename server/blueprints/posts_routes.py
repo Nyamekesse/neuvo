@@ -55,7 +55,7 @@ def fetch_all_posts():
 
 
 @post_bp.route("/new-post", methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def create_new_post():
     """create a new post"""
     data = request.get_json()
@@ -135,6 +135,23 @@ def delete(id):
     except NoResultFound:
         return handle_not_found("")
     except Exception as e:
+        return internal_server_error_handler(
+            "something went wrong please try again later"
+        )
+
+
+@post_bp.route("/search")
+def search():
+    try:
+        q = request.args.get("q")
+        if not q:
+            return handle_not_processable_error("")
+        results = Post.query.whooshee_search(q).all()
+        if not results:
+            return handle_not_found("Your search query could not match any post")
+        return jsonify({"success": True, "query": q, "results": posts_schema(results)})
+    except Exception as e:
+        print(e)
         return internal_server_error_handler(
             "something went wrong please try again later"
         )

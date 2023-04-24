@@ -1,6 +1,6 @@
 import sys
 from flask import Flask
-from exts import db, marshmallow, migrate
+from exts import db, marshmallow, migrate, whooshee
 from logs_config import LOGGING_CONFIG
 from flask_jwt_extended import JWTManager
 from models.user import User
@@ -40,6 +40,7 @@ def create_app(config=DevConfig):
     marshmallow.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
+    whooshee.init_app(app)
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(post_bp)

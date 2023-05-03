@@ -27,6 +27,14 @@ class Category(db.Model):
         db.session.commit()
 
 
+class CategorySchema(marshmallow.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Category
+
+
+category_schema = CategorySchema()
+
+
 @whooshee.register_model("title", "post_content")  # expose fields for search
 class Post(db.Model):
     __tablename__ = "posts"
@@ -48,22 +56,27 @@ class Post(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def update(self, title=None, post_content=None, post_image=None) -> None:
+    def update(
+        self, title=None, post_content=None, post_image=None, category_id=None
+    ) -> None:
         if title:
             self.title = title
         if post_content:
             self.post_content = post_content
         if post_image:
             self.post_image = post_image
+        if category_id:
+            self.category_id = category_id
         db.session.commit()
 
     def __repr__(self):
         return f"Post('{str(self.id)}', '{self.title}', '{self.date_posted}', '{self.post_content}','{self.post_image}'),'{self.author_id}','{self.author_name}'"
 
 
-class PostsSchema(marshmallow.SQLAlchemyAutoSchema):
+class PostSchema(marshmallow.SQLAlchemyAutoSchema):
     class Meta:
         model = Post
+        exclude = ("category_id",)
 
     @pre_load
     def strip_whitespace(self, data, **kwargs):
@@ -72,7 +85,25 @@ class PostsSchema(marshmallow.SQLAlchemyAutoSchema):
     id = fields.String(dump_only=True)
     date_posted = fields.DateTime(dump_only=True)
     author_id = fields.String()
+    category = fields.Nested(category_schema, only=("id", "name"))
+    category_id = fields.Integer()
 
 
-post_schema = PostsSchema()
-posts_schema = PostsSchema(many=True)
+class UpdatePostSchema(marshmallow.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Post
+        exclude = ("date_posted",)
+
+    @pre_load
+    def strip_whitespace(self, data, **kwargs):
+        return {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
+
+    id = fields.String(dump_only=True)
+    title = fields.String(required=True)
+    author_id = fields.String()
+    category_id = fields.Integer()
+
+
+post_schema = PostSchema()
+update_post_schema = UpdatePostSchema()
+posts_schema = PostSchema(many=True)

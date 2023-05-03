@@ -2,7 +2,7 @@ from sqlalchemy import CheckConstraint
 from exts import db, marshmallow
 from uuid import uuid4
 from marshmallow import fields, pre_load
-from models.post import PostsSchema
+from models.post import PostSchema
 from utils import gen_short_id
 
 """

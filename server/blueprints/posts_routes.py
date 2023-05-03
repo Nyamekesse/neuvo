@@ -1,9 +1,15 @@
 from sqlalchemy.exc import InvalidRequestError
-from models.post import Post, posts_schema, post_schema
+from models.post import (
+    Post,
+    posts_schema,
+    post_schema,
+    update_post_schema,
+)
 from flask_jwt_extended import jwt_required
 from flask import Blueprint, request, jsonify, make_response
 from marshmallow import ValidationError
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import func
 from errors import (
     handle_not_processable_error,
     handle_unauthorized,
@@ -12,6 +18,8 @@ from errors import (
     handle_internal_server_error,
     handle_no_content,
 )
+from exts import ix
+from whoosh.qparser import QueryParser
 
 post_bp = Blueprint(
     "posts",
@@ -55,7 +63,7 @@ def fetch_all_posts():
 
 
 @post_bp.route("/new-post", methods=["POST"])
-# @jwt_required()
+@jwt_required()
 def create_new_post():
     """create a new post"""
     data = request.get_json()
@@ -74,7 +82,8 @@ def create_new_post():
             ),
             200,
         )
-    except ValidationError:
+    except ValidationError as e:
+        print(e)
         return handle_not_processable_error("")
     except Exception as e:
         return internal_server_error_handler(
@@ -107,15 +116,19 @@ def update_post(id):
         return handle_not_processable_error("")
     post_to_update = Post.query.get_or_404(str(id).strip())
     try:
-        loaded_data = post_schema.load(data, instance=post_to_update, partial=True)
+        loaded_data = update_post_schema.load(
+            data, instance=post_to_update, partial=True
+        )
 
         post_to_update.update(**loaded_data)
         return jsonify(
             {"success": True, "updated_post": post_schema.dump(post_to_update)}
         )
-    except ValidationError:
+    except ValidationError as e:
+        print(e)
         return handle_not_processable_error("")
     except Exception as e:
+        print(e)
         return internal_server_error_handler(
             "something went wrong please try again later"
         )
@@ -135,6 +148,7 @@ def delete(id):
     except NoResultFound:
         return handle_not_found("")
     except Exception as e:
+        print(e)
         return internal_server_error_handler(
             "something went wrong please try again later"
         )
@@ -146,10 +160,15 @@ def search():
         q = request.args.get("q")
         if not q:
             return handle_not_processable_error("")
-        results = Post.query.whooshee_search(q).all()
-        if not results:
-            return handle_not_found("Your search query could not match any post")
-        return jsonify({"success": True, "query": q, "results": posts_schema(results)})
+        with ix.searcher() as searcher:
+            query = QueryParser("post_content", ix.schema).parse(q)
+            results = searcher.search(query)
+            if not results:
+                return handle_not_found("Your search query could not match any post")
+            serialized_results = posts_schema.dump(
+                results
+            )  # Serialize the results using posts_schema
+            return jsonify({"success": True, "query": q, "results": serialized_results})
     except Exception as e:
         print(e)
         return internal_server_error_handler(

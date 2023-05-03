@@ -140,8 +140,9 @@ def login_user():
 def refresh_token():
     try:
         current_user = get_jwt_identity()
-        new_access_token = create_access_token(identity=current_user, fresh=False)
-        return make_response(jsonify({"access_token": new_access_token}), 200)
+        access_token = create_access_token(identity=current_user, fresh=False)
+        headers = {"Authorization": "Bearer {}".format(access_token)}
+        return make_response(jsonify({"success": True}), 200, headers)
     except Exception as e:
         print(e)
         return handle_internal_server_error("")

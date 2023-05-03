@@ -1,6 +1,5 @@
-import sys
-from flask import Flask
-from exts import db, marshmallow, migrate, whooshee
+from flask import Flask, current_app
+from exts import db, marshmallow, migrate, whooshee, ix
 from logs_config import LOGGING_CONFIG
 from flask_jwt_extended import JWTManager
 from models.user import User
@@ -25,7 +24,7 @@ if not os.path.exists("logs"):
 # logging.config.dictConfig(LOGGING_CONFIG)
 
 
-def create_app(config=DevConfig):
+def create_app():
     logging.config.dictConfig(LOGGING_CONFIG)
     app = Flask(__name__)
     if app.config.get("ENV") == "production":
@@ -34,27 +33,36 @@ def create_app(config=DevConfig):
         app.config.from_object(TestConfig)
     else:
         app.config.from_object(DevConfig)
-    CORS(app)
-    Bcrypt(app)
-    JWTManager(app)
-    marshmallow.init_app(app)
-    db.init_app(app)
-    migrate.init_app(app, db)
-    whooshee.init_app(app)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(users_bp)
-    app.register_blueprint(post_bp)
-    app.register_blueprint(save_post_bp)
-    app.register_blueprint(like_post_bp)
-    app.register_blueprint(default_bp)
+    with app.app_context():
+        CORS(app)
+        Bcrypt(app)
+        JWTManager(app)
+        marshmallow.init_app(app)
+        db.init_app(app)
+        migrate.init_app(app, db)
+        whooshee.init_app(app)
 
-    @app.errorhandler(Exception)
-    def handle_exception(e):
-        app.logger.debug("Unhandled Exception: %s", str(e))
-        return handle_internal_server_error("")
+        # Populate the index with data from the model
+        writer = ix.writer()
+        for post in Post.query.all():
+            writer.add_document(
+                id=str(post.id), title=post.title, post_content=post.post_content
+            )
+        writer.commit()
+        app.register_blueprint(auth_bp)
+        app.register_blueprint(users_bp)
+        app.register_blueprint(post_bp)
+        app.register_blueprint(save_post_bp)
+        app.register_blueprint(like_post_bp)
+        app.register_blueprint(default_bp)
 
-    @app.shell_context_processor
-    def make_shell_context():
-        return {"db": db, "User": User, "Post": Post}
+        @app.errorhandler(Exception)
+        def handle_exception(e):
+            app.logger.debug("Unhandled Exception: %s", str(e))
+            return handle_internal_server_error("")
+
+        @app.shell_context_processor
+        def make_shell_context():
+            return {"db": db, "User": User, "Post": Post}
 
     return app

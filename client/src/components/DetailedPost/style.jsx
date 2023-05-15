@@ -1,31 +1,30 @@
 import { Box, styled } from "@mui/material";
-import { height, width } from "@mui/system";
 
-export const Wrap = styled(Box)(({ theme }) => ({
+export const Wrap = styled(Box)(() => ({
   width: "100%",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
 }));
 
-export const Post = styled(Box)(({ theme }) => ({
+export const Post = styled(Box)(() => ({
   width: "100%",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
 }));
 
-export const Image = styled(Box)(({ theme }) => ({
+export const Image = styled(Box)(() => ({
   width: "100%",
   height: "280px",
 }));
 
-export const CommentSection = styled(Box)(({ theme }) => ({
+export const CommentSection = styled(Box)(() => ({
   width: "100%",
   margin: "2% 0",
 }));
 
-export const Comments = styled(Box)(({ theme }) => ({
+export const Comments = styled(Box)(() => ({
   display: "flex",
   flexDirection: "column",
   width: "100%",
@@ -36,14 +35,14 @@ export const Comments = styled(Box)(({ theme }) => ({
   boxShadow: "0px 2px 2px rgba(142, 142, 142, 0.25)",
 }));
 
-export const CommentCard = styled(Box)(({ theme }) => ({
+export const CommentCard = styled(Box)(() => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "flex-start",
   marginBottom: "20px",
 }));
 
-export const CommentText = styled(Box)(({ theme }) => ({
+export const CommentText = styled(Box)(() => ({
   width: "auto",
   maxHeight: "150px",
   padding: "1% 2%",

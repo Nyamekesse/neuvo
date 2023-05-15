@@ -1,6 +1,6 @@
 import { Box, styled } from "@mui/material";
 
-export const Wrap = styled(Box)(({ theme }) => ({
+export const Wrap = styled(Box)(() => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -11,7 +11,7 @@ export const Wrap = styled(Box)(({ theme }) => ({
   marginTop: "1%",
 }));
 
-export const Socials = styled(Box)(({ theme }) => ({
+export const Socials = styled(Box)(() => ({
   display: "flex",
   flexDirection: "row",
 }));

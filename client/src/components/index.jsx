@@ -8,4 +8,4 @@ export { default as SuggestedPostCard } from "./SuggestedPostCard";
 export { default as TextFields } from "./Inputs/TextFields";
 export { default as SelectFields } from "./Inputs/SelectFields";
 export { default as CheckBoxes } from "./Inputs/CheckBoxes";
-export { default as CustomEditor } from "./Editor";
+export { default as MainEditor } from "./Editor";
